@@ -1,0 +1,1461 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Livro-Caixa do Vendedor</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --void:#0A1712;
+    --surface-1:#122019;
+    --surface-2:#16261E;
+    --glass:rgba(41,68,55,0.42);
+    --glass-strong:rgba(41,68,55,0.62);
+    --border-glow:rgba(217,180,74,0.22);
+    --border-glow-strong:rgba(217,180,74,0.4);
+    --gold:#D9B44A;
+    --gold-soft:#F0D878;
+    --gold-glow:rgba(217,180,74,0.38);
+    --cream:#EDE6D3;
+    --cream-dim:rgba(237,230,211,0.55);
+    --cream-faint:rgba(237,230,211,0.32);
+    --sage:#74A984;
+    --sage-glow:rgba(116,169,132,0.35);
+    --rose:#D08578;
+    --rose-glow:rgba(208,133,120,0.35);
+    --amber:#E0A15C;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:transparent;}
+  body{
+    font-family:'Inter',sans-serif;
+    color:var(--cream);
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{animation:none !important; transition:none !important;}
+  }
+  button, input, select{font-family:inherit;}
+  button:focus-visible, input:focus-visible, select:focus-visible{
+    outline:2px solid var(--gold);
+    outline-offset:2px;
+  }
+
+  .app{
+    max-width:720px;
+    margin:0 auto;
+    background:var(--void);
+    border-radius:22px;
+    overflow:hidden;
+    position:relative;
+    box-shadow:0 40px 80px -40px rgba(0,0,0,0.7);
+    border:1px solid #071009;
+  }
+  .glow-blob{
+    position:absolute;
+    border-radius:50%;
+    filter:blur(60px);
+    pointer-events:none;
+    z-index:0;
+  }
+  .glow-blob.gold{
+    width:280px; height:280px;
+    top:-90px; right:-70px;
+    background:radial-gradient(circle, rgba(217,180,74,0.32), transparent 70%);
+    animation:pulseGlow 7s ease-in-out infinite;
+  }
+  .glow-blob.sage{
+    width:240px; height:240px;
+    bottom:120px; left:-100px;
+    background:radial-gradient(circle, rgba(116,169,132,0.2), transparent 70%);
+    animation:pulseGlow 9s ease-in-out infinite 1s;
+  }
+  @keyframes pulseGlow{
+    0%,100%{opacity:0.7;}
+    50%{opacity:1;}
+  }
+  .content{position:relative; z-index:1;}
+
+  /* ---------- GLASS PANEL BASE ---------- */
+  .glass{
+    background:var(--glass);
+    backdrop-filter:blur(18px) saturate(140%);
+    -webkit-backdrop-filter:blur(18px) saturate(140%);
+    border:1px solid var(--border-glow);
+    border-radius:18px;
+    box-shadow:0 10px 30px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  /* ---------- HERO / COVER ---------- */
+  .cover{
+    margin:16px 16px 0;
+    padding:24px 22px 22px;
+    position:relative;
+    overflow:hidden;
+  }
+  .cover-eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:var(--gold);
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:16px;
+  }
+  .month-select{
+    background:rgba(217,180,74,0.1);
+    border:1px solid var(--border-glow-strong);
+    color:var(--cream);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    padding:5px 9px;
+    border-radius:7px;
+  }
+  .cover-title{
+    font-family:'Fraunces',serif;
+    font-weight:500;
+    font-size:14px;
+    letter-spacing:.02em;
+    color:var(--cream-dim);
+    margin:0 0 6px;
+  }
+  .cover-amount{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:46px;
+    line-height:1;
+    letter-spacing:-.01em;
+    background:linear-gradient(135deg, var(--gold-soft), var(--gold));
+    -webkit-background-clip:text;
+    background-clip:text;
+    color:transparent;
+    margin:0;
+  }
+  .cover-sub{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--cream-faint);
+    margin-top:10px;
+  }
+
+  /* ---------- GAUGE ---------- */
+  .gauge-wrap{
+    margin:12px 16px 0;
+    padding:16px 20px 18px;
+    position:relative;
+  }
+  .gauge-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:baseline;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--cream-faint);
+    margin-bottom:12px;
+    text-transform:uppercase;
+    letter-spacing:.08em;
+  }
+  .gauge-row button{
+    background:none;border:none;color:var(--gold);
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;
+    letter-spacing:.08em; text-transform:uppercase;
+    cursor:pointer; text-decoration:underline;
+    padding:0;
+  }
+  .gauge-track{
+    position:relative;
+    height:10px;
+    background:rgba(0,0,0,0.4);
+    border-radius:6px;
+    border:1px solid var(--border-glow);
+  }
+  .gauge-fill{
+    height:100%;
+    border-radius:5px 0 0 5px;
+    transition:width .5s cubic-bezier(.4,0,.2,1), background .3s;
+  }
+  .gauge-fill.zone-base{background:linear-gradient(90deg, #7A5A24, var(--amber));}
+  .gauge-fill.zone-minima{background:linear-gradient(90deg, var(--amber), var(--sage));}
+  .gauge-fill.zone-ideal{background:linear-gradient(90deg, var(--sage), var(--gold));}
+  .gauge-fill.zone-superada{background:linear-gradient(90deg, var(--gold), var(--gold-soft)); box-shadow:0 0 14px var(--gold-glow);}
+  .gauge-tick{position:absolute; top:-3px; width:2px; height:16px; background:rgba(237,230,211,0.3);}
+  .gauge-tick-label{
+    position:absolute; top:14px; transform:translateX(-50%);
+    font-family:'IBM Plex Mono',monospace; font-size:9px; color:var(--cream-faint); white-space:nowrap;
+  }
+  .gauge-caption{margin-top:20px; font-size:11.5px; font-family:'IBM Plex Mono',monospace; color:var(--cream-faint);}
+  .gauge-caption.superada{color:var(--gold);}
+  .goal-seal{
+    position:absolute; top:14px; right:20px;
+    font-family:'IBM Plex Mono',monospace; font-weight:700; font-size:10px; letter-spacing:.1em;
+    color:var(--gold-soft);
+    border:1.5px solid var(--gold);
+    padding:3px 8px; border-radius:5px;
+    transform:rotate(5deg);
+    background:rgba(217,180,74,0.1);
+    box-shadow:0 0 16px var(--gold-glow);
+  }
+
+  /* ---------- INSIGHTS ---------- */
+  .insights-wrap{
+    margin:12px 16px 0;
+    padding:16px 20px 18px;
+  }
+  .insights-title{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--cream-faint);
+    margin-bottom:12px;
+  }
+  .insights-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+  }
+  .insight-card{
+    background:rgba(0,0,0,0.18);
+    border:1px solid var(--border-glow);
+    border-radius:12px;
+    padding:11px 12px;
+  }
+  .insight-label{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    color:var(--cream-faint);
+    margin-bottom:5px;
+  }
+  .insight-value{
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:19px;
+    color:var(--gold-soft);
+  }
+  .insight-sub{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--cream-faint);
+    margin-top:3px;
+  }
+  .insights-empty{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    color:var(--cream-faint);
+    text-align:center;
+    padding:8px 4px 2px;
+  }
+
+  /* ---------- TABS ---------- */
+  .tabs{
+    display:flex;
+    gap:8px;
+    padding:16px 16px 10px;
+    overflow-x:auto;
+    scrollbar-width:none;
+  }
+  .tabs::-webkit-scrollbar{display:none;}
+  .tab{
+    flex:0 0 auto;
+    padding:9px 15px;
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    font-size:13.5px;
+    color:var(--cream-dim);
+    background:rgba(255,255,255,0.03);
+    border:1px solid var(--border-glow);
+    border-radius:30px;
+    cursor:pointer;
+    transition:all .2s;
+    white-space:nowrap;
+    position:relative;
+  }
+  .tab.active{
+    color:var(--void);
+    background:linear-gradient(135deg, var(--gold-soft), var(--gold));
+    border-color:transparent;
+    box-shadow:0 4px 16px var(--gold-glow);
+  }
+  .tab-badge{
+    display:inline-block;
+    background:var(--rose);
+    color:var(--void);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9px;
+    font-weight:700;
+    border-radius:20px;
+    padding:1px 6px;
+    margin-left:5px;
+  }
+
+  /* ---------- PAGE ---------- */
+  .page{padding:4px 16px 4px;}
+  .page-head{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    margin-bottom:14px;
+  }
+  .page-head h2{
+    font-family:'Fraunces',serif;
+    font-size:17px;
+    margin:0;
+    color:var(--cream);
+  }
+  .page-head p.hint{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--cream-faint);
+    margin:3px 0 0;
+  }
+  .add-btn{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:.03em;
+    background:linear-gradient(135deg, var(--gold-soft), var(--gold));
+    color:var(--void);
+    font-weight:600;
+    border:none;
+    padding:9px 14px;
+    border-radius:9px;
+    cursor:pointer;
+    white-space:nowrap;
+    box-shadow:0 4px 14px var(--gold-glow);
+  }
+
+  .empty{
+    text-align:center;
+    padding:30px 14px;
+    color:var(--cream-faint);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    border:1px dashed var(--border-glow-strong);
+    border-radius:14px;
+  }
+
+  /* ---------- AGENDA GROUPS ---------- */
+  .agenda-group{margin-bottom:16px;}
+  .agenda-group-head{display:flex; align-items:center; gap:8px; margin-bottom:9px;}
+  .agenda-group-title{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--cream-faint);
+  }
+  .agenda-group.overdue .agenda-group-title{color:var(--rose);}
+  .agenda-group-line{flex:1; height:1px; background:var(--border-glow);}
+  .section-divider{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    text-transform:uppercase;
+    letter-spacing:.1em;
+    color:var(--cream-faint);
+    margin:22px 0 10px;
+    padding-top:14px;
+    border-top:1px solid var(--border-glow);
+  }
+
+  /* ---------- STUB (glass card) ---------- */
+  .stub{
+    position:relative;
+    background:var(--surface-2);
+    border:1px solid var(--border-glow);
+    border-left:3px solid var(--gold);
+    border-radius:14px;
+    padding:14px 15px 13px;
+    margin-bottom:11px;
+  }
+  .stub.recebido{border-left-color:var(--sage);}
+  .stub.overdue{border-left-color:var(--rose);}
+  .stub.expense{border-left-color:#B08A5C;}
+  .stub.tipo-visita{border-left-color:var(--gold);}
+  .stub.tipo-reuniao{border-left-color:#8FB8D9;}
+  .stub.tipo-ligacao{border-left-color:#C99BD9;}
+
+  .stub-row{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .stub-desc{font-weight:600; font-size:14.5px; color:var(--cream);}
+  .stub-date{font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--cream-faint); margin-top:3px;}
+  .stub-date.overdue-text{color:var(--rose); font-weight:600;}
+  .stub-value{font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:16px; color:var(--cream); white-space:nowrap;}
+  .stub-loc{font-family:'IBM Plex Mono',monospace; font-size:10.5px; color:var(--cream-faint); margin-top:2px;}
+  .stub-note{font-size:12.5px; color:var(--cream-dim); margin-top:8px; line-height:1.4;}
+
+  .stub-foot{display:flex; justify-content:space-between; align-items:center; margin-top:13px; flex-wrap:wrap; gap:8px;}
+  .pill{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    padding:3px 9px;
+    border-radius:20px;
+  }
+  .status-pill{background:rgba(224,161,92,0.15); color:var(--amber); border:1px solid rgba(224,161,92,0.35);}
+  .stub.recebido .status-pill{background:rgba(116,169,132,0.15); color:var(--sage); border-color:rgba(116,169,132,0.35);}
+  .stub.overdue .status-pill{background:rgba(208,133,120,0.15); color:var(--rose); border-color:rgba(208,133,120,0.35);}
+  .type-pill.tipo-visita{background:rgba(217,180,74,0.14); color:var(--gold-soft); border:1px solid rgba(217,180,74,0.3);}
+  .type-pill.tipo-reuniao{background:rgba(143,184,217,0.14); color:#B7D5EE; border:1px solid rgba(143,184,217,0.3);}
+  .type-pill.tipo-ligacao{background:rgba(201,155,217,0.14); color:#DDBCEB; border:1px solid rgba(201,155,217,0.3);}
+  .cat-pill{color:var(--cream-faint); background:rgba(255,255,255,0.05); border:1px solid var(--border-glow);}
+  .month-tag{color:var(--cream-faint); background:rgba(255,255,255,0.04); border:1px solid var(--border-glow);}
+
+  .stub-actions{display:flex; gap:6px; flex-wrap:wrap;}
+  .stub-actions button{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    background:none;
+    border:1px solid var(--border-glow-strong);
+    color:var(--cream-dim);
+    padding:6px 10px;
+    border-radius:7px;
+    cursor:pointer;
+  }
+  .stub-actions .mark-btn{border-color:var(--sage); color:var(--sage); font-weight:600;}
+  .stub-actions .conclude-btn{border-color:var(--gold); color:var(--gold-soft); font-weight:600;}
+
+  /* wax-seal signature stamp */
+  .stamp{
+    position:absolute;
+    top:10px; right:12px;
+    font-family:'IBM Plex Mono',monospace;
+    font-weight:700;
+    font-size:10.5px;
+    letter-spacing:.1em;
+    padding:4px 9px;
+    border-radius:5px;
+    transform:rotate(7deg);
+    pointer-events:none;
+  }
+  .stamp.stamp-sage{color:var(--sage); border:1.5px solid var(--sage); background:rgba(116,169,132,0.08); box-shadow:0 0 14px var(--sage-glow);}
+  .stamp.stamp-rose{color:var(--rose); border:1.5px solid var(--rose); background:rgba(208,133,120,0.08); box-shadow:0 0 14px var(--rose-glow);}
+  .stamp.stamp-gold{color:var(--gold-soft); border:1.5px solid var(--gold); background:rgba(217,180,74,0.08); box-shadow:0 0 14px var(--gold-glow);}
+  .loss-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:var(--rose);
+    margin-top:6px;
+  }
+
+  /* ---------- CHART (Histórico) ---------- */
+  .chart-wrap{padding:18px 14px 16px;}
+  .chart-legend{display:flex; gap:18px; justify-content:center; margin-top:6px;}
+  .legend-item{
+    display:flex; align-items:center; gap:6px;
+    font-family:'IBM Plex Mono',monospace; font-size:11px; color:var(--cream-dim);
+  }
+  .legend-dot{width:8px; height:8px; border-radius:50%; display:inline-block;}
+
+  /* ---------- SUMMARY ---------- */
+  .summary{margin:8px 16px 16px; padding:16px 18px 18px;}
+  .summary-grid{display:grid; grid-template-columns:1fr 1fr; gap:10px;}
+  .sum-card{background:rgba(0,0,0,0.18); border:1px solid var(--border-glow); border-radius:12px; padding:11px 12px;}
+  .sum-label{font-family:'IBM Plex Mono',monospace; font-size:9.5px; text-transform:uppercase; letter-spacing:.06em; color:var(--cream-faint); margin-bottom:4px;}
+  .sum-value{font-family:'Fraunces',serif; font-weight:600; font-size:18px; color:var(--cream);}
+  .sum-value.recebido{color:var(--sage);}
+  .sum-value.pendente{color:var(--amber);}
+  .sum-value.gastos{color:var(--rose);}
+  .sum-value.saldo{color:var(--gold-soft);}
+  .reset-row{text-align:center; margin-top:16px;}
+  .reset-row button{background:none; border:none; color:var(--cream-faint); font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-decoration:underline; cursor:pointer;}
+
+  /* ---------- MODAL ---------- */
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(6,12,9,0.65);
+    backdrop-filter:blur(3px);
+    display:none;
+    align-items:flex-end;
+    justify-content:center;
+    z-index:50;
+  }
+  .overlay.open{display:flex;}
+  .sheet{
+    background:var(--surface-1);
+    border-top:1px solid var(--border-glow-strong);
+    width:100%;
+    max-width:720px;
+    max-height:90vh;
+    overflow-y:auto;
+    border-radius:20px 20px 0 0;
+    padding:22px 22px 26px;
+    box-shadow:0 -20px 50px rgba(0,0,0,0.5);
+  }
+  .sheet h3{font-family:'Fraunces',serif; margin:0 0 4px; font-size:18px; color:var(--cream);}
+  .sheet p.sheet-sub{font-size:12.5px; color:var(--cream-faint); margin:0 0 16px; line-height:1.4;}
+  .field{margin-bottom:12px;}
+  .field label{
+    display:block; font-family:'IBM Plex Mono',monospace; font-size:10px; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--cream-faint); margin-bottom:5px;
+  }
+  .field input, .field select, .field textarea{
+    width:100%; padding:10px 11px; border-radius:9px;
+    border:1px solid var(--border-glow-strong);
+    background:rgba(0,0,0,0.22);
+    font-family:'Inter',sans-serif; font-size:14px; color:var(--cream);
+  }
+  .field textarea{resize:vertical; min-height:60px;}
+  .field-row{display:flex; gap:10px;}
+  .field-row .field{flex:1;}
+  .choice-grid{display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:14px;}
+  .choice-btn{
+    padding:11px 10px;
+    border-radius:10px;
+    border:1px solid var(--border-glow-strong);
+    background:rgba(0,0,0,0.18);
+    color:var(--cream-dim);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    text-align:left;
+    cursor:pointer;
+  }
+  .choice-btn:hover{border-color:var(--gold);}
+  .choice-btn.big{
+    grid-column:1 / -1;
+    padding:16px 14px;
+    font-size:14px;
+    font-family:'Fraunces',serif;
+    font-weight:600;
+    color:var(--cream);
+  }
+  .choice-btn.selected{border-color:var(--gold); background:rgba(217,180,74,0.1); color:var(--gold-soft);}
+  .sheet-actions{display:flex; gap:10px; margin-top:6px;}
+  .sheet-actions button{
+    flex:1; padding:12px; border-radius:10px; border:none;
+    font-family:'IBM Plex Mono',monospace; font-size:13px; letter-spacing:.03em; cursor:pointer;
+  }
+  .btn-cancel{background:transparent; border:1px solid var(--border-glow-strong) !important; color:var(--cream-dim);}
+  .btn-save{background:linear-gradient(135deg, var(--gold-soft), var(--gold)); color:var(--void); font-weight:600;}
+  .btn-danger{background:var(--rose); color:var(--void); font-weight:600;}
+
+  .loading-msg{
+    padding:40px 20px; text-align:center;
+    font-family:'IBM Plex Mono',monospace; color:var(--cream-faint);
+    background:var(--void); font-size:12px;
+  }
+
+  /* ---------- AUTH SCREEN ---------- */
+  .auth-screen{
+    padding:40px 26px 30px;
+    position:relative;
+  }
+  .auth-brand{
+    text-align:center;
+    margin-bottom:28px;
+  }
+  .auth-brand .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px; letter-spacing:.16em; text-transform:uppercase;
+    color:var(--gold); margin-bottom:8px;
+  }
+  .auth-brand h1{
+    font-family:'Fraunces',serif; font-weight:700; font-size:26px;
+    margin:0; color:var(--cream);
+  }
+  .auth-tabs{display:flex; gap:8px; margin-bottom:20px; justify-content:center;}
+  .auth-tab{
+    padding:8px 16px; border-radius:30px; border:1px solid var(--border-glow);
+    background:rgba(255,255,255,0.03); color:var(--cream-dim);
+    font-family:'IBM Plex Mono',monospace; font-size:11.5px; cursor:pointer;
+  }
+  .auth-tab.active{
+    background:linear-gradient(135deg, var(--gold-soft), var(--gold));
+    color:var(--void); border-color:transparent;
+  }
+  .auth-error{
+    background:rgba(208,133,120,0.12); border:1px solid rgba(208,133,120,0.4);
+    color:var(--rose); font-size:12.5px; padding:10px 12px; border-radius:10px;
+    margin-bottom:14px; font-family:'Inter',sans-serif;
+  }
+  .auth-hint{
+    text-align:center; font-family:'IBM Plex Mono',monospace; font-size:10.5px;
+    color:var(--cream-faint); margin-top:16px; line-height:1.6;
+  }
+  .btn-primary-full{
+    width:100%; padding:13px; border-radius:10px; border:none;
+    background:linear-gradient(135deg, var(--gold-soft), var(--gold)); color:var(--void);
+    font-family:'IBM Plex Mono',monospace; font-weight:600; font-size:13.5px;
+    cursor:pointer; box-shadow:0 6px 20px var(--gold-glow); margin-top:6px;
+  }
+  .btn-primary-full:disabled{opacity:.6; cursor:default;}
+  .logout-btn{
+    background:none; border:1px solid var(--border-glow-strong); color:var(--cream-faint);
+    font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+    padding:5px 10px; border-radius:7px; cursor:pointer;
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="loading-msg" id="loadingMsg">carregando livro-caixa…</div>
+</div>
+
+<div class="overlay" id="overlay">
+  <div class="sheet" id="sheet"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+(function(){
+  // ====================================================================
+  // CONFIGURAÇÃO — cole aqui a URL e a chave "anon" do seu projeto Supabase
+  // (Project Settings > API, no painel do supabase.com)
+  // ====================================================================
+  const SUPABASE_URL = 'https://litjjbduholbwswcvpuz.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxpdGpqYmR1aG9sYndzd2N2cHV6Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY0ODk3MDMsImV4cCI6MjEwMjA2NTcwM30.EXGcmWMTme4uDaO9YTFjpac9AG-SzB8YVCrio93g9z4';
+  // ====================================================================
+
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  const LOSS_REASONS = [
+    {id:'preco', label:'Preço'},
+    {id:'timing', label:'Timing'},
+    {id:'concorrencia', label:'Concorrência'},
+    {id:'sem_orcamento', label:'Sem orçamento'},
+    {id:'nao_decisor', label:'Não era o decisor'},
+    {id:'sem_necessidade', label:'Sem necessidade real'},
+    {id:'sem_retorno', label:'Sem retorno'},
+    {id:'outro', label:'Outro'},
+  ];
+  const TIPO_LABEL = {visita:'Visita', reuniao:'Reunião', ligacao:'Ligação'};
+
+  const state = {
+    commissions: [],
+    expenses: [],
+    goals: {},
+    compromissos: [],
+    month: monthKey(new Date()),
+    tab: 'comissoes',
+    ready:false,
+    session: null,
+    authView: 'login', // 'login' | 'signup'
+    authError: null,
+    authLoading: false
+  };
+
+  function monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+  function monthLabel(key){
+    const [y,m] = key.split('-').map(Number);
+    const d = new Date(y, m-1, 1);
+    const s = d.toLocaleDateString('pt-BR', {month:'long', year:'numeric'});
+    return s.charAt(0).toUpperCase()+s.slice(1);
+  }
+  function monthLabelShort(key){
+    const [y,m] = key.split('-').map(Number);
+    const d = new Date(y, m-1, 1);
+    return d.toLocaleDateString('pt-BR', {month:'short'}).replace('.','');
+  }
+  function fmtMoney(v){ return (v||0).toLocaleString('pt-BR', {style:'currency', currency:'BRL'}); }
+  function fmtDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return d+'/'+m+'/'+y; }
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+  function todayIso(){ return new Date().toISOString().slice(0,10); }
+  function addDays(iso,n){ const d=new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+  function endOfMonthIso(iso){ const [y,m]=iso.split('-').map(Number); return new Date(y,m,0).toISOString().slice(0,10); }
+  function isOverdue(c){ return c.status==='pendente' && c.expectedDate && c.expectedDate < todayIso(); }
+  function isOverdueCompromisso(c){ return c.status==='agendado' && c.date < todayIso(); }
+  function escapeHtml(s){ const d=document.createElement('div'); d.textContent = s==null?'':s; return d.innerHTML; }
+
+  // ---------- Mapeamento entre colunas do banco (snake_case) e o app (camelCase) ----------
+  function mapCommissionFromDb(r){
+    return { id:r.id, client:r.client, value:Number(r.value), date:r.date, expectedDate:r.expected_date, status:r.status, receivedDate:r.received_date };
+  }
+  function mapExpenseFromDb(r){
+    return { id:r.id, description:r.description, value:Number(r.value), date:r.date, category:r.category };
+  }
+  function mapCompromissoFromDb(r){
+    return { id:r.id, type:r.type, client:r.client, date:r.date, time:r.time, location:r.location, notes:r.notes,
+      status:r.status, outcome:r.outcome, lossReason:r.loss_reason, lossNote:r.loss_note, linkedCommissionId:r.linked_commission_id };
+  }
+
+  async function loadAllData(){
+    state.ready = false; render();
+    try{
+      const [cRes, eRes, pRes, gRes] = await Promise.all([
+        supabase.from('commissions').select('*'),
+        supabase.from('expenses').select('*'),
+        supabase.from('compromissos').select('*'),
+        supabase.from('goals').select('*'),
+      ]);
+      state.commissions = (cRes.data||[]).map(mapCommissionFromDb);
+      state.expenses = (eRes.data||[]).map(mapExpenseFromDb);
+      state.compromissos = (pRes.data||[]).map(mapCompromissoFromDb);
+      const goals = {};
+      (gRes.data||[]).forEach(r=>{ goals[r.month] = { minima:Number(r.minima)||0, ideal:Number(r.ideal)||0, superada:Number(r.superada)||0 }; });
+      state.goals = goals;
+    }catch(e){
+      console.error('Erro ao carregar dados', e);
+      state.commissions=[]; state.expenses=[]; state.compromissos=[]; state.goals={};
+    }
+    state.ready = true;
+    render();
+  }
+
+  async function insertCommission(obj){
+    const userId = state.session.user.id;
+    const { data, error } = await supabase.from('commissions').insert({
+      user_id:userId, client:obj.client, value:obj.value, date:obj.date,
+      expected_date:obj.expectedDate, status:obj.status, received_date:obj.receivedDate
+    }).select().single();
+    if(error){ console.error(error); return null; }
+    const mapped = mapCommissionFromDb(data);
+    state.commissions.push(mapped);
+    return mapped;
+  }
+  async function updateCommission(id, patch){
+    const dbPatch = {};
+    if('status' in patch) dbPatch.status = patch.status;
+    if('receivedDate' in patch) dbPatch.received_date = patch.receivedDate;
+    const { error } = await supabase.from('commissions').update(dbPatch).eq('id', id);
+    if(error){ console.error(error); return; }
+    const c = state.commissions.find(c=>c.id===id);
+    if(c) Object.assign(c, patch);
+  }
+  async function deleteCommissionDb(id){
+    const { error } = await supabase.from('commissions').delete().eq('id', id);
+    if(error){ console.error(error); return; }
+    state.commissions = state.commissions.filter(c=>c.id!==id);
+  }
+
+  async function insertExpense(obj){
+    const userId = state.session.user.id;
+    const { data, error } = await supabase.from('expenses').insert({
+      user_id:userId, description:obj.description, value:obj.value, date:obj.date, category:obj.category
+    }).select().single();
+    if(error){ console.error(error); return null; }
+    const mapped = mapExpenseFromDb(data);
+    state.expenses.push(mapped);
+    return mapped;
+  }
+  async function deleteExpenseDb(id){
+    const { error } = await supabase.from('expenses').delete().eq('id', id);
+    if(error){ console.error(error); return; }
+    state.expenses = state.expenses.filter(e=>e.id!==id);
+  }
+
+  async function saveGoalMonth(month, goal){
+    const userId = state.session.user.id;
+    const { error } = await supabase.from('goals').upsert({
+      user_id:userId, month, minima:goal.minima, ideal:goal.ideal, superada:goal.superada
+    }, {onConflict:'user_id,month'});
+    if(error){ console.error(error); return; }
+    state.goals[month] = goal;
+  }
+
+  async function insertCompromisso(obj){
+    const userId = state.session.user.id;
+    const { data, error } = await supabase.from('compromissos').insert({
+      user_id:userId, type:obj.type, client:obj.client, date:obj.date, time:obj.time,
+      location:obj.location, notes:obj.notes, status:'agendado', outcome:null, loss_reason:null, loss_note:null, linked_commission_id:null
+    }).select().single();
+    if(error){ console.error(error); return null; }
+    const mapped = mapCompromissoFromDb(data);
+    state.compromissos.push(mapped);
+    return mapped;
+  }
+  async function updateCompromisso(id, patch){
+    const dbPatch = {};
+    if('status' in patch) dbPatch.status = patch.status;
+    if('outcome' in patch) dbPatch.outcome = patch.outcome;
+    if('lossReason' in patch) dbPatch.loss_reason = patch.lossReason;
+    if('lossNote' in patch) dbPatch.loss_note = patch.lossNote;
+    if('linkedCommissionId' in patch) dbPatch.linked_commission_id = patch.linkedCommissionId;
+    const { error } = await supabase.from('compromissos').update(dbPatch).eq('id', id);
+    if(error){ console.error(error); return; }
+    const c = state.compromissos.find(c=>c.id===id);
+    if(c) Object.assign(c, patch);
+  }
+  async function deleteCompromissoDb(id){
+    const { error } = await supabase.from('compromissos').delete().eq('id', id);
+    if(error){ console.error(error); return; }
+    state.compromissos = state.compromissos.filter(c=>c.id!==id);
+  }
+
+  function monthsAvailable(){
+    const set = new Set([state.month]);
+    state.commissions.forEach(c=>set.add(c.date.slice(0,7)));
+    state.expenses.forEach(e=>set.add(e.date.slice(0,7)));
+    state.compromissos.forEach(c=>set.add(c.date.slice(0,7)));
+    return Array.from(set).sort().reverse();
+  }
+  function commissionsForMonth(){ return state.commissions.filter(c=>c.date.slice(0,7)===state.month).sort((a,b)=> a.date<b.date?1:-1); }
+  function expensesForMonth(){ return state.expenses.filter(e=>e.date.slice(0,7)===state.month).sort((a,b)=> a.date<b.date?1:-1); }
+  function overdueCommissionCount(){ return state.commissions.filter(isOverdue).length; }
+  function overdueCompromissoCount(){ return state.compromissos.filter(isOverdueCompromisso).length; }
+
+  function totals(){
+    const cs = commissionsForMonth(); const es = expensesForMonth();
+    const recebido = cs.filter(c=>c.status==='recebido').reduce((s,c)=>s+c.value,0);
+    const pendente = cs.filter(c=>c.status==='pendente').reduce((s,c)=>s+c.value,0);
+    const gastos = es.reduce((s,e)=>s+e.value,0);
+    return {recebido, pendente, gastos, saldo: recebido-gastos};
+  }
+
+  function insightsForMonth(){
+    const concluded = state.compromissos.filter(c=>c.status==='concluido' && c.date.slice(0,7)===state.month);
+    if(concluded.length===0) return null;
+    const convertidos = concluded.filter(c=>c.outcome==='convertido');
+    const perdidos = concluded.filter(c=>c.outcome==='perdido');
+    const rate = Math.round((convertidos.length/concluded.length)*100);
+    let topReason = null;
+    if(perdidos.length>0){
+      const tally = {};
+      perdidos.forEach(c=>{ tally[c.lossReason] = (tally[c.lossReason]||0)+1; });
+      const sorted = Object.entries(tally).sort((a,b)=>b[1]-a[1]);
+      const [id,count] = sorted[0];
+      const label = (LOSS_REASONS.find(r=>r.id===id)||{}).label || id;
+      topReason = {label, count, pct: Math.round((count/perdidos.length)*100)};
+    }
+    return {rate, convertidos: convertidos.length, total: concluded.length, topReason};
+  }
+
+  function render(){
+    const app = document.getElementById('app');
+    if(!state.session){ renderAuthScreen(); return; }
+    if(!state.ready){ app.innerHTML = '<div class="loading-msg">carregando livro-caixa…</div>'; return; }
+    const t = totals();
+    const g = state.goals[state.month];
+    const overdueN = overdueCommissionCount();
+    const overdueCompN = overdueCompromissoCount();
+    const insights = insightsForMonth();
+
+    const monthOptions = monthsAvailable().map(k=>
+      `<option value="${k}" ${k===state.month?'selected':''}>${monthLabel(k)}</option>`
+    ).join('');
+
+    app.innerHTML = `
+      <div class="glow-blob gold"></div>
+      <div class="glow-blob sage"></div>
+      <div class="content">
+        <div class="cover glass">
+          <div class="cover-eyebrow">
+            <span>Livro-caixa do vendedor</span>
+            <span style="display:flex; gap:8px; align-items:center;">
+              <select class="month-select" id="monthSelect">${monthOptions}</select>
+              <button class="logout-btn" id="logoutBtn" title="Sair da conta">Sair</button>
+            </span>
+          </div>
+          <p class="cover-title">Recebido em ${monthLabel(state.month)}</p>
+          <p class="cover-amount">${fmtMoney(t.recebido)}</p>
+          <p class="cover-sub">A receber: ${fmtMoney(t.pendente)} · Despesas: ${fmtMoney(t.gastos)}</p>
+        </div>
+
+        ${renderGauge(g, t.recebido)}
+        ${renderInsights(insights)}
+
+        <div class="tabs">
+          <button class="tab ${state.tab==='comissoes'?'active':''}" id="tabComissoes">Comissões</button>
+          <button class="tab ${state.tab==='compromissos'?'active':''}" id="tabCompromissos">Compromissos${overdueCompN>0?`<span class="tab-badge">${overdueCompN}</span>`:''}</button>
+          <button class="tab ${state.tab==='recebimentos'?'active':''}" id="tabRecebimentos">Recebimentos${overdueN>0?`<span class="tab-badge">${overdueN}</span>`:''}</button>
+          <button class="tab ${state.tab==='despesas'?'active':''}" id="tabDespesas">Despesas</button>
+          <button class="tab ${state.tab==='historico'?'active':''}" id="tabHistorico">Histórico</button>
+        </div>
+
+        <div class="page">
+          ${state.tab==='comissoes' ? renderComissoes()
+            : state.tab==='compromissos' ? renderCompromissos()
+            : state.tab==='recebimentos' ? renderRecebimentos()
+            : state.tab==='historico' ? renderHistorico()
+            : renderDespesas()}
+        </div>
+
+        <div class="summary glass">
+          <div class="summary-grid">
+            <div class="sum-card"><div class="sum-label">Recebido</div><div class="sum-value recebido">${fmtMoney(t.recebido)}</div></div>
+            <div class="sum-card"><div class="sum-label">A receber</div><div class="sum-value pendente">${fmtMoney(t.pendente)}</div></div>
+            <div class="sum-card"><div class="sum-label">Despesas</div><div class="sum-value gastos">${fmtMoney(t.gastos)}</div></div>
+            <div class="sum-card"><div class="sum-label">Saldo líquido</div><div class="sum-value saldo">${fmtMoney(t.saldo)}</div></div>
+          </div>
+          <div class="reset-row"><button id="resetBtn">limpar todos os dados</button></div>
+        </div>
+      </div>
+    `;
+    attachEvents();
+  }
+
+  function renderGauge(g, recebido){
+    if(!g || (!g.minima && !g.ideal && !g.superada)){
+      return `
+        <div class="gauge-wrap glass">
+          <div class="gauge-row"><span>Meta do mês</span><button id="editGoalBtn">definir meta</button></div>
+          <div class="gauge-track"><div class="gauge-fill" style="width:0%"></div></div>
+          <div class="gauge-caption">Defina metas mínima, ideal e superada para este mês</div>
+        </div>`;
+    }
+    const max = g.superada || g.ideal || g.minima || 1;
+    const pct = Math.min(100, (recebido/max)*100);
+    const minimaPct = Math.min(100, (g.minima/max)*100);
+    const idealPct = Math.min(100, (g.ideal/max)*100);
+    let zone='zone-base', caption=`Faltam ${fmtMoney(Math.max(0,g.minima-recebido))} para a meta mínima`;
+    if(recebido >= (g.superada||Infinity)){ zone='zone-superada'; caption = `Meta superada! ${fmtMoney(recebido-g.superada)} além do previsto`; }
+    else if(recebido >= (g.ideal||Infinity)){ zone='zone-ideal'; caption = `Faltam ${fmtMoney(g.superada-recebido)} para superar a meta`; }
+    else if(recebido >= (g.minima||0)){ zone='zone-minima'; caption = `Faltam ${fmtMoney(g.ideal-recebido)} para a meta ideal`; }
+    const supered = recebido >= (g.superada||Infinity) && g.superada;
+    return `
+      <div class="gauge-wrap glass">
+        ${supered ? '<div class="goal-seal">SUPERADA</div>' : ''}
+        <div class="gauge-row"><span>Meta do mês</span><button id="editGoalBtn">editar</button></div>
+        <div class="gauge-track">
+          <div class="gauge-fill ${zone}" style="width:${pct}%"></div>
+          ${g.minima ? `<div class="gauge-tick" style="left:${minimaPct}%"></div><div class="gauge-tick-label" style="left:${minimaPct}%">mín</div>` : ''}
+          ${g.ideal ? `<div class="gauge-tick" style="left:${idealPct}%"></div><div class="gauge-tick-label" style="left:${idealPct}%">ideal</div>` : ''}
+          <div class="gauge-tick" style="left:100%"></div><div class="gauge-tick-label" style="left:100%">super</div>
+        </div>
+        <div class="gauge-caption ${supered?'superada':''}">${caption}</div>
+      </div>`;
+  }
+
+  function renderInsights(insights){
+    if(!insights){
+      return `
+        <div class="insights-wrap glass">
+          <div class="insights-title">Insights do mês</div>
+          <div class="insights-empty">Conclua compromissos para começar a ver sua taxa de conversão e principais motivos de perda.</div>
+        </div>`;
+    }
+    return `
+      <div class="insights-wrap glass">
+        <div class="insights-title">Insights do mês</div>
+        <div class="insights-grid">
+          <div class="insight-card">
+            <div class="insight-label">Taxa de conversão</div>
+            <div class="insight-value">${insights.rate}%</div>
+            <div class="insight-sub">${insights.convertidos} de ${insights.total} compromissos</div>
+          </div>
+          <div class="insight-card">
+            <div class="insight-label">Principal motivo de perda</div>
+            <div class="insight-value">${insights.topReason ? insights.topReason.label : '—'}</div>
+            <div class="insight-sub">${insights.topReason ? insights.topReason.count+' ocorrência(s) · '+insights.topReason.pct+'%' : 'Nenhuma perda registrada'}</div>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderComissoes(){
+    const list = commissionsForMonth();
+    const head = `<div class="page-head"><h2>Comissões</h2><button class="add-btn" id="addComissao">+ Nova comissão</button></div>`;
+    if(list.length===0) return head + `<div class="empty">Nenhuma comissão lançada em ${monthLabel(state.month)}.<br>Registre uma venda para começar a acompanhar o recebimento.</div>`;
+    return head + list.map(c=>commissionStub(c, {showMonth:false})).join('');
+  }
+
+  function renderRecebimentos(){
+    const pending = state.commissions.filter(c=>c.status==='pendente');
+    const head = `<div class="page-head"><div><h2>Recebimentos</h2><p class="hint">Comissões pendentes, organizadas por urgência</p></div></div>`;
+    if(pending.length===0) return head + `<div class="empty">Nenhuma comissão pendente. Tudo recebido!</div>`;
+    const today = todayIso(), weekEnd = addDays(today,6), monthEnd = endOfMonthIso(today);
+    const groups = {atrasado:[], hoje:[], semana:[], mes:[], depois:[], semData:[]};
+    pending.forEach(c=>{
+      if(!c.expectedDate){ groups.semData.push(c); return; }
+      if(c.expectedDate < today) groups.atrasado.push(c);
+      else if(c.expectedDate === today) groups.hoje.push(c);
+      else if(c.expectedDate <= weekEnd) groups.semana.push(c);
+      else if(c.expectedDate <= monthEnd) groups.mes.push(c);
+      else groups.depois.push(c);
+    });
+    Object.values(groups).forEach(g=>g.sort((a,b)=> (a.expectedDate||'') < (b.expectedDate||'') ? -1 : 1));
+    const sections = [['atrasado','Atrasado',true],['hoje','Vence hoje',false],['semana','Esta semana',false],['mes','Este mês',false],['depois','Mais adiante',false],['semData','Sem previsão de data',false]];
+    let html = head;
+    sections.forEach(([key,label,isOv])=>{
+      const items = groups[key]; if(items.length===0) return;
+      html += `<div class="agenda-group ${isOv?'overdue':''}"><div class="agenda-group-head"><span class="agenda-group-title">${label} (${items.length})</span><span class="agenda-group-line"></span></div>${items.map(c=>commissionStub(c,{showMonth:true})).join('')}</div>`;
+    });
+    return html;
+  }
+
+  function commissionStub(c, opts){
+    opts = opts || {};
+    const overdue = isOverdue(c);
+    const monthDiffers = opts.showMonth && c.date.slice(0,7) !== state.month;
+    return `
+      <div class="stub ${c.status==='recebido'?'recebido':''} ${overdue?'overdue':''}" data-id="${c.id}">
+        ${c.status==='recebido' ? '<div class="stamp stamp-sage">RECEBIDO</div>' : ''}
+        <div class="stub-row">
+          <div>
+            <div class="stub-desc">${escapeHtml(c.client)}</div>
+            <div class="stub-date ${overdue?'overdue-text':''}">${c.expectedDate ? (overdue?'Venceu em ':'Previsão: ')+fmtDate(c.expectedDate) : 'Venda em '+fmtDate(c.date)}</div>
+          </div>
+          <div class="stub-value">${fmtMoney(c.value)}</div>
+        </div>
+        <div class="stub-foot">
+          <span style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+            <span class="pill status-pill">${c.status==='recebido' ? 'Recebido' : overdue ? 'Atrasado' : 'A receber'}</span>
+            ${monthDiffers ? `<span class="pill month-tag">${monthLabelShort(c.date.slice(0,7))}</span>` : ''}
+          </span>
+          <span class="stub-actions">
+            ${c.status!=='recebido' ? `<button class="mark-btn" data-action="mark" data-id="${c.id}">Marcar recebido</button>` : `<button data-action="unmark" data-id="${c.id}">Desfazer</button>`}
+            <button data-action="delete-commission" data-id="${c.id}">Excluir</button>
+          </span>
+        </div>
+      </div>`;
+  }
+
+  function renderDespesas(){
+    const list = expensesForMonth();
+    const head = `<div class="page-head"><h2>Despesas</h2><button class="add-btn" id="addDespesa">+ Nova despesa</button></div>`;
+    if(list.length===0) return head + `<div class="empty">Nenhuma despesa lançada em ${monthLabel(state.month)}.</div>`;
+    return head + list.map(e=>`
+      <div class="stub expense" data-id="${e.id}">
+        <div class="stub-row">
+          <div><div class="stub-desc">${escapeHtml(e.description)}</div><div class="stub-date">${fmtDate(e.date)}</div></div>
+          <div class="stub-value">-${fmtMoney(e.value)}</div>
+        </div>
+        <div class="stub-foot">
+          <span class="pill cat-pill">${escapeHtml(e.category||'geral')}</span>
+          <span class="stub-actions"><button data-action="delete-expense" data-id="${e.id}">Excluir</button></span>
+        </div>
+      </div>`).join('');
+  }
+
+  function last12MonthKeys(){
+    const keys = []; const now = new Date();
+    for(let i=11;i>=0;i--){ keys.push(monthKey(new Date(now.getFullYear(), now.getMonth()-i, 1))); }
+    return keys;
+  }
+  function historicoData(){
+    return last12MonthKeys().map(k=>{
+      const recebido = state.commissions.filter(c=>c.status==='recebido' && c.date.slice(0,7)===k).reduce((s,c)=>s+c.value,0);
+      const gastos = state.expenses.filter(e=>e.date.slice(0,7)===k).reduce((s,e)=>s+e.value,0);
+      return {month:k, recebido, gastos};
+    });
+  }
+
+  function renderHistorico(){
+    const data = historicoData();
+    const hasAny = data.some(d=>d.recebido>0 || d.gastos>0);
+    const head = `<div class="page-head"><div><h2>Histórico</h2><p class="hint">Recebido vs. despesas nos últimos 12 meses</p></div></div>`;
+    if(!hasAny) return head + `<div class="empty">Ainda não há dados suficientes para montar o histórico.<br>Registre comissões e despesas ao longo dos meses para ver a evolução aqui.</div>`;
+    return head + buildChartSVG(data);
+  }
+
+  function buildChartSVG(data){
+    const W=680, H=240, padL=8, padR=8, padT=18, padB=28;
+    const innerW = W-padL-padR, innerH = H-padT-padB;
+    const maxRaw = Math.max(1, ...data.map(d=>Math.max(d.recebido,d.gastos)));
+    const maxVal = maxRaw*1.15;
+    const stepX = data.length>1 ? innerW/(data.length-1) : 0;
+    const xAt = i => padL + i*stepX;
+    const yAt = v => padT + innerH - (v/maxVal)*innerH;
+
+    function lineFor(key){
+      return data.map((d,i)=> (i===0?'M':'L') + xAt(i).toFixed(1) + ',' + yAt(d[key]).toFixed(1)).join(' ');
+    }
+    const recebidoLine = lineFor('recebido');
+    const gastosLine = lineFor('gastos');
+    const areaPath = recebidoLine + ` L${xAt(data.length-1).toFixed(1)},${(padT+innerH).toFixed(1)} L${xAt(0).toFixed(1)},${(padT+innerH).toFixed(1)} Z`;
+
+    const dots = (key, color) => data.map((d,i)=>
+      `<circle cx="${xAt(i).toFixed(1)}" cy="${yAt(d[key]).toFixed(1)}" r="3.2" fill="${color}"><title>${monthLabel(d.month)}: ${fmtMoney(d[key])}</title></circle>`
+    ).join('');
+
+    const labels = data.map((d,i)=>
+      `<text x="${xAt(i).toFixed(1)}" y="${H-8}" font-size="10" fill="var(--cream-faint)" text-anchor="middle" font-family="'IBM Plex Mono',monospace">${monthLabelShort(d.month)}</text>`
+    ).join('');
+
+    return `
+      <div class="chart-wrap glass">
+        <svg viewBox="0 0 ${W} ${H}" style="width:100%; height:auto; display:block;">
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="var(--gold)" stop-opacity="0.28"/>
+              <stop offset="100%" stop-color="var(--gold)" stop-opacity="0"/>
+            </linearGradient>
+          </defs>
+          <path d="${areaPath}" fill="url(#areaGrad)" stroke="none"/>
+          <path d="${gastosLine}" fill="none" stroke="var(--rose)" stroke-width="2" opacity="0.85" vector-effect="non-scaling-stroke"/>
+          <path d="${recebidoLine}" fill="none" stroke="var(--gold-soft)" stroke-width="2.5" vector-effect="non-scaling-stroke" style="filter:drop-shadow(0 0 4px var(--gold-glow));"/>
+          ${dots('gastos','var(--rose)')}
+          ${dots('recebido','var(--gold-soft)')}
+          ${labels}
+        </svg>
+        <div class="chart-legend">
+          <span class="legend-item"><span class="legend-dot" style="background:var(--gold-soft);"></span>Recebido</span>
+          <span class="legend-item"><span class="legend-dot" style="background:var(--rose);"></span>Despesas</span>
+        </div>
+      </div>`;
+  }
+
+  function renderCompromissos(){
+    const agendados = state.compromissos.filter(c=>c.status==='agendado');
+    const concluidosMes = state.compromissos.filter(c=>c.status==='concluido' && c.date.slice(0,7)===state.month)
+      .sort((a,b)=> a.date<b.date?1:-1);
+    const head = `<div class="page-head"><div><h2>Compromissos</h2><p class="hint">Visitas, reuniões e ligações agendadas</p></div><button class="add-btn" id="addCompromisso">+ Novo</button></div>`;
+
+    if(agendados.length===0 && concluidosMes.length===0){
+      return head + `<div class="empty">Nenhum compromisso agendado.<br>Organize sua agenda de visitas, reuniões e ligações.</div>`;
+    }
+
+    let html = head;
+    if(agendados.length>0){
+      const today = todayIso(), weekEnd = addDays(today,6), monthEnd = endOfMonthIso(today);
+      const groups = {atrasado:[], hoje:[], semana:[], mes:[], depois:[]};
+      agendados.forEach(c=>{
+        if(c.date < today) groups.atrasado.push(c);
+        else if(c.date === today) groups.hoje.push(c);
+        else if(c.date <= weekEnd) groups.semana.push(c);
+        else if(c.date <= monthEnd) groups.mes.push(c);
+        else groups.depois.push(c);
+      });
+      Object.values(groups).forEach(g=>g.sort((a,b)=>{
+        if(a.date !== b.date) return a.date < b.date ? -1 : 1;
+        return (a.time||'') < (b.time||'') ? -1 : 1;
+      }));
+      const sections = [['atrasado','Sem retorno registrado',true],['hoje','Hoje',false],['semana','Esta semana',false],['mes','Este mês',false],['depois','Mais adiante',false]];
+      sections.forEach(([key,label,isOv])=>{
+        const items = groups[key]; if(items.length===0) return;
+        html += `<div class="agenda-group ${isOv?'overdue':''}"><div class="agenda-group-head"><span class="agenda-group-title">${label} (${items.length})</span><span class="agenda-group-line"></span></div>${items.map(c=>compromissoStub(c)).join('')}</div>`;
+      });
+    } else {
+      html += `<div class="empty">Nenhum compromisso agendado no momento.</div>`;
+    }
+
+    if(concluidosMes.length>0){
+      html += `<div class="section-divider">Concluídos em ${monthLabel(state.month)} (${concluidosMes.length})</div>`;
+      html += concluidosMes.map(c=>compromissoStub(c)).join('');
+    }
+    return html;
+  }
+
+  function compromissoStub(c){
+    const overdue = isOverdueCompromisso(c);
+    const done = c.status === 'concluido';
+    let stamp = '';
+    if(done && c.outcome==='convertido') stamp = '<div class="stamp stamp-sage">CONVERTIDO</div>';
+    else if(done && c.outcome==='perdido') stamp = '<div class="stamp stamp-rose">NÃO CONVERTIDO</div>';
+    const lossLabel = c.lossReason ? (LOSS_REASONS.find(r=>r.id===c.lossReason)||{}).label : null;
+
+    return `
+      <div class="stub tipo-${c.type} ${overdue?'overdue':''}" data-id="${c.id}">
+        ${stamp}
+        <div class="stub-row">
+          <div>
+            <div class="stub-desc">${escapeHtml(c.client)}</div>
+            <div class="stub-date ${overdue?'overdue-text':''}">${fmtDate(c.date)}${c.time ? ' às '+c.time : ''}</div>
+            ${c.location ? `<div class="stub-loc">📍 ${escapeHtml(c.location)}</div>` : ''}
+          </div>
+        </div>
+        ${c.notes ? `<div class="stub-note">${escapeHtml(c.notes)}</div>` : ''}
+        ${lossLabel ? `<div class="loss-tag">Motivo: ${lossLabel}${c.lossNote ? ' — '+escapeHtml(c.lossNote) : ''}</div>` : ''}
+        <div class="stub-foot">
+          <span class="pill type-pill tipo-${c.type}">${TIPO_LABEL[c.type]}</span>
+          <span class="stub-actions">
+            ${!done ? `
+              <button class="conclude-btn" data-action="conclude" data-id="${c.id}">Concluir</button>
+              <button data-action="cancel-compromisso" data-id="${c.id}">Cancelar</button>
+            ` : `<button data-action="delete-compromisso" data-id="${c.id}">Excluir</button>`}
+          </span>
+        </div>
+      </div>`;
+  }
+
+  function attachEvents(){
+    const monthSelect = document.getElementById('monthSelect');
+    if(monthSelect) monthSelect.addEventListener('change', e=>{ state.month = e.target.value; render(); });
+
+    const tabMap = {tabComissoes:'comissoes', tabCompromissos:'compromissos', tabRecebimentos:'recebimentos', tabDespesas:'despesas', tabHistorico:'historico'};
+    Object.keys(tabMap).forEach(id=>{
+      const el = document.getElementById(id);
+      if(el) el.addEventListener('click', ()=>{ state.tab = tabMap[id]; render(); });
+    });
+
+    const addC = document.getElementById('addComissao'); if(addC) addC.addEventListener('click', openCommissionForm);
+    const addD = document.getElementById('addDespesa'); if(addD) addD.addEventListener('click', openExpenseForm);
+    const addP = document.getElementById('addCompromisso'); if(addP) addP.addEventListener('click', openCompromissoForm);
+    const goalBtn = document.getElementById('editGoalBtn'); if(goalBtn) goalBtn.addEventListener('click', openGoalForm);
+    const resetBtn = document.getElementById('resetBtn'); if(resetBtn) resetBtn.addEventListener('click', confirmReset);
+    const logoutBtn = document.getElementById('logoutBtn'); if(logoutBtn) logoutBtn.addEventListener('click', async ()=>{ await supabase.auth.signOut(); });
+
+    document.querySelectorAll('[data-action="mark"]').forEach(b=>b.addEventListener('click', ()=>toggleStatus(b.dataset.id,'recebido')));
+    document.querySelectorAll('[data-action="unmark"]').forEach(b=>b.addEventListener('click', ()=>toggleStatus(b.dataset.id,'pendente')));
+    document.querySelectorAll('[data-action="delete-commission"]').forEach(b=>b.addEventListener('click', ()=>deleteCommission(b.dataset.id)));
+    document.querySelectorAll('[data-action="delete-expense"]').forEach(b=>b.addEventListener('click', ()=>deleteExpense(b.dataset.id)));
+    document.querySelectorAll('[data-action="conclude"]').forEach(b=>b.addEventListener('click', ()=>openConcludeFlow(b.dataset.id)));
+    document.querySelectorAll('[data-action="cancel-compromisso"]').forEach(b=>b.addEventListener('click', ()=>deleteCompromisso(b.dataset.id)));
+    document.querySelectorAll('[data-action="delete-compromisso"]').forEach(b=>b.addEventListener('click', ()=>deleteCompromisso(b.dataset.id)));
+  }
+
+  async function toggleStatus(id, status){
+    await updateCommission(id, { status, receivedDate: status==='recebido' ? todayIso() : null });
+    render();
+  }
+  async function deleteCommission(id){ await deleteCommissionDb(id); render(); }
+  async function deleteExpense(id){ await deleteExpenseDb(id); render(); }
+  async function deleteCompromisso(id){ await deleteCompromissoDb(id); render(); }
+
+  function openOverlay(html){ document.getElementById('sheet').innerHTML = html; document.getElementById('overlay').classList.add('open'); }
+  function closeOverlay(){ document.getElementById('overlay').classList.remove('open'); }
+
+  function openCommissionForm(prefill){
+    prefill = prefill || {};
+    openOverlay(`
+      <h3>Nova comissão</h3>
+      <div class="field"><label>Cliente / venda</label><input type="text" id="f_client" value="${escapeHtml(prefill.client||'')}" placeholder="Ex: Cliente Silva - Pedido 1234"></div>
+      <div class="field-row">
+        <div class="field"><label>Valor</label><input type="number" id="f_value" step="0.01" min="0" placeholder="0,00"></div>
+        <div class="field"><label>Data da venda</label><input type="date" id="f_date" value="${prefill.date||todayIso()}"></div>
+      </div>
+      <div class="field"><label>Previsão de pagamento (opcional)</label><input type="date" id="f_expected"></div>
+      <div class="sheet-actions"><button class="btn-cancel" id="cancelBtn">Cancelar</button><button class="btn-save" id="saveBtn">Salvar</button></div>
+    `);
+    document.getElementById('cancelBtn').addEventListener('click', ()=>{
+      // se veio de um fluxo de conclusão de compromisso, apenas fecha (compromisso já tratado antes)
+      closeOverlay();
+    });
+    document.getElementById('saveBtn').addEventListener('click', async ()=>{
+      const client = document.getElementById('f_client').value.trim();
+      const value = parseFloat(document.getElementById('f_value').value);
+      const date = document.getElementById('f_date').value;
+      const expected = document.getElementById('f_expected').value;
+      if(!client || !value || !date) return;
+      const saveBtn = document.getElementById('saveBtn'); saveBtn.disabled = true; saveBtn.textContent = 'Salvando…';
+      const newCommission = await insertCommission({ client, value, date, expectedDate: expected||null, status:'pendente', receivedDate:null });
+      if(!newCommission){ saveBtn.disabled=false; saveBtn.textContent='Salvar'; return; }
+
+      if(prefill.linkCompromissoId){
+        await updateCompromisso(prefill.linkCompromissoId, { status:'concluido', outcome:'convertido', linkedCommissionId:newCommission.id });
+      }
+      closeOverlay();
+      state.tab = 'comissoes';
+      render();
+    });
+  }
+
+  function openExpenseForm(){
+    openOverlay(`
+      <h3>Nova despesa</h3>
+      <div class="field"><label>Descrição</label><input type="text" id="f_desc" placeholder="Ex: Combustível, materiais..."></div>
+      <div class="field-row">
+        <div class="field"><label>Valor</label><input type="number" id="f_value" step="0.01" min="0" placeholder="0,00"></div>
+        <div class="field"><label>Data</label><input type="date" id="f_date" value="${todayIso()}"></div>
+      </div>
+      <div class="field"><label>Categoria (opcional)</label><input type="text" id="f_cat" placeholder="Ex: transporte, ferramentas"></div>
+      <div class="sheet-actions"><button class="btn-cancel" id="cancelBtn">Cancelar</button><button class="btn-save" id="saveBtn">Salvar</button></div>
+    `);
+    document.getElementById('cancelBtn').addEventListener('click', closeOverlay);
+    document.getElementById('saveBtn').addEventListener('click', async ()=>{
+      const description = document.getElementById('f_desc').value.trim();
+      const value = parseFloat(document.getElementById('f_value').value);
+      const date = document.getElementById('f_date').value;
+      const category = document.getElementById('f_cat').value.trim();
+      if(!description || !value || !date) return;
+      await insertExpense({ description, value, date, category });
+      closeOverlay(); state.tab = 'despesas'; render();
+    });
+  }
+
+  function openGoalForm(){
+    const g = state.goals[state.month] || {};
+    openOverlay(`
+      <h3>Meta de ${monthLabel(state.month)}</h3>
+      <p class="sheet-sub">Defina os três níveis. A barra muda de cor conforme você avança entre eles.</p>
+      <div class="field"><label>Meta mínima</label><input type="number" id="f_minima" step="0.01" min="0" value="${g.minima||''}" placeholder="0,00"></div>
+      <div class="field"><label>Meta ideal</label><input type="number" id="f_ideal" step="0.01" min="0" value="${g.ideal||''}" placeholder="0,00"></div>
+      <div class="field"><label>Meta superada</label><input type="number" id="f_superada" step="0.01" min="0" value="${g.superada||''}" placeholder="0,00"></div>
+      <div class="sheet-actions"><button class="btn-cancel" id="cancelBtn">Cancelar</button><button class="btn-save" id="saveBtn">Salvar</button></div>
+    `);
+    document.getElementById('cancelBtn').addEventListener('click', closeOverlay);
+    document.getElementById('saveBtn').addEventListener('click', async ()=>{
+      const minima = parseFloat(document.getElementById('f_minima').value) || 0;
+      const ideal = parseFloat(document.getElementById('f_ideal').value) || 0;
+      const superada = parseFloat(document.getElementById('f_superada').value) || 0;
+      await saveGoalMonth(state.month, { minima, ideal, superada });
+      closeOverlay(); render();
+    });
+  }
+
+  function openCompromissoForm(){
+    openOverlay(`
+      <h3>Novo compromisso</h3>
+      <div class="field"><label>Tipo</label>
+        <div class="choice-grid" id="tipoChoices">
+          <button type="button" class="choice-btn" data-tipo="visita">Visita</button>
+          <button type="button" class="choice-btn" data-tipo="reuniao">Reunião</button>
+          <button type="button" class="choice-btn" data-tipo="ligacao">Ligação</button>
+        </div>
+      </div>
+      <div class="field"><label>Cliente / contato</label><input type="text" id="f_client" placeholder="Ex: Cliente Silva"></div>
+      <div class="field-row">
+        <div class="field"><label>Data</label><input type="date" id="f_date" value="${todayIso()}"></div>
+        <div class="field"><label>Horário</label><input type="time" id="f_time"></div>
+      </div>
+      <div class="field"><label>Local (opcional)</label><input type="text" id="f_location" placeholder="Ex: Escritório do cliente"></div>
+      <div class="field"><label>Observações (opcional)</label><textarea id="f_notes" placeholder="Detalhes do compromisso..."></textarea></div>
+      <div class="sheet-actions"><button class="btn-cancel" id="cancelBtn">Cancelar</button><button class="btn-save" id="saveBtn">Salvar</button></div>
+    `);
+    let tipo = 'visita';
+    const buttons = document.querySelectorAll('#tipoChoices .choice-btn');
+    function selectTipo(t){ tipo=t; buttons.forEach(b=>b.classList.toggle('selected', b.dataset.tipo===t)); }
+    buttons.forEach(b=>b.addEventListener('click', ()=>selectTipo(b.dataset.tipo)));
+    selectTipo('visita');
+    document.getElementById('cancelBtn').addEventListener('click', closeOverlay);
+    document.getElementById('saveBtn').addEventListener('click', async ()=>{
+      const client = document.getElementById('f_client').value.trim();
+      const date = document.getElementById('f_date').value;
+      const time = document.getElementById('f_time').value;
+      const location = document.getElementById('f_location').value.trim();
+      const notes = document.getElementById('f_notes').value.trim();
+      if(!client || !date) return;
+      await insertCompromisso({ type: tipo, client, date, time: time||null, location: location||null, notes: notes||null });
+      closeOverlay(); state.tab = 'compromissos'; render();
+    });
+  }
+
+  function openConcludeFlow(compromissoId){
+    const comp = state.compromissos.find(c=>c.id===compromissoId);
+    if(!comp) return;
+    openOverlay(`
+      <h3>Concluir compromisso</h3>
+      <p class="sheet-sub">${escapeHtml(comp.client)} · ${TIPO_LABEL[comp.type]}</p>
+      <p style="font-family:'Inter',sans-serif; font-size:14px; color:var(--cream); margin:0 0 14px;">Essa atividade gerou uma venda?</p>
+      <div class="choice-grid">
+        <button type="button" class="choice-btn big" id="btnGerouVenda">Sim, gerou venda</button>
+        <button type="button" class="choice-btn big" id="btnNaoGerou">Não gerou venda</button>
+      </div>
+      <div class="sheet-actions"><button class="btn-cancel" id="cancelBtn">Voltar</button></div>
+    `);
+    document.getElementById('cancelBtn').addEventListener('click', closeOverlay);
+    document.getElementById('btnGerouVenda').addEventListener('click', ()=>{
+      openCommissionForm({ client: comp.client, date: todayIso(), linkCompromissoId: comp.id });
+    });
+    document.getElementById('btnNaoGerou').addEventListener('click', ()=>{
+      openLossReasonForm(comp.id);
+    });
+  }
+
+  function openLossReasonForm(compromissoId){
+    openOverlay(`
+      <h3>Motivo da não conversão</h3>
+      <p class="sheet-sub">Isso ajuda a identificar padrões e melhorar suas próximas negociações.</p>
+      <div class="choice-grid" id="reasonChoices">
+        ${LOSS_REASONS.map(r=>`<button type="button" class="choice-btn" data-reason="${r.id}">${r.label}</button>`).join('')}
+      </div>
+      <div class="field"><label>Observação (opcional)</label><textarea id="f_lossnote" placeholder="Detalhes adicionais..."></textarea></div>
+      <div class="sheet-actions"><button class="btn-cancel" id="cancelBtn">Cancelar</button><button class="btn-save" id="saveBtn">Salvar</button></div>
+    `);
+    let reason = null;
+    const buttons = document.querySelectorAll('#reasonChoices .choice-btn');
+    buttons.forEach(b=>b.addEventListener('click', ()=>{ reason=b.dataset.reason; buttons.forEach(x=>x.classList.toggle('selected', x===b)); }));
+    document.getElementById('cancelBtn').addEventListener('click', closeOverlay);
+    document.getElementById('saveBtn').addEventListener('click', async ()=>{
+      if(!reason) return;
+      const lossNote = document.getElementById('f_lossnote').value.trim() || null;
+      await updateCompromisso(compromissoId, { status:'concluido', outcome:'perdido', lossReason:reason, lossNote });
+      closeOverlay(); state.tab = 'compromissos'; render();
+    });
+  }
+
+  function confirmReset(){
+    openOverlay(`
+      <h3>Limpar todos os dados?</h3>
+      <p class="sheet-sub">Isso vai apagar todas as comissões, despesas, compromissos e metas salvas da sua conta. Essa ação não pode ser desfeita.</p>
+      <div class="sheet-actions"><button class="btn-cancel" id="cancelBtn">Cancelar</button><button class="btn-danger" id="confirmResetBtn">Apagar tudo</button></div>
+    `);
+    document.getElementById('cancelBtn').addEventListener('click', closeOverlay);
+    document.getElementById('confirmResetBtn').addEventListener('click', async ()=>{
+      const userId = state.session.user.id;
+      await Promise.all([
+        supabase.from('commissions').delete().eq('user_id', userId),
+        supabase.from('expenses').delete().eq('user_id', userId),
+        supabase.from('compromissos').delete().eq('user_id', userId),
+        supabase.from('goals').delete().eq('user_id', userId),
+      ]);
+      state.commissions = []; state.expenses = []; state.goals = {}; state.compromissos = [];
+      closeOverlay(); render();
+    });
+  }
+
+  document.getElementById('overlay').addEventListener('click', (e)=>{ if(e.target.id==='overlay') closeOverlay(); });
+
+  // ---------- Tela de autenticação (login / cadastro) ----------
+  function renderAuthScreen(){
+    const app = document.getElementById('app');
+    const isSignup = state.authView === 'signup';
+    app.innerHTML = `
+      <div class="glow-blob gold"></div>
+      <div class="glow-blob sage"></div>
+      <div class="content">
+        <div class="auth-screen glass" style="margin:16px;">
+          <div class="auth-brand">
+            <div class="eyebrow">Livro-caixa do vendedor</div>
+            <h1>Sua conta</h1>
+          </div>
+          <div class="auth-tabs">
+            <button class="auth-tab ${!isSignup?'active':''}" id="authTabLogin">Entrar</button>
+            <button class="auth-tab ${isSignup?'active':''}" id="authTabSignup">Criar conta</button>
+          </div>
+          ${state.authError ? `<div class="auth-error">${escapeHtml(state.authError)}</div>` : ''}
+          <div class="field"><label>E-mail</label><input type="email" id="authEmail" placeholder="seu@email.com" autocomplete="email"></div>
+          <div class="field"><label>Senha</label><input type="password" id="authPassword" placeholder="••••••••" autocomplete="${isSignup?'new-password':'current-password'}"></div>
+          <button class="btn-primary-full" id="authSubmit" ${state.authLoading?'disabled':''}>${state.authLoading ? 'Aguarde…' : (isSignup ? 'Criar conta' : 'Entrar')}</button>
+          <p class="auth-hint">${isSignup ? 'Seus dados ficam privados, vinculados só à sua conta, e sincronizam em qualquer aparelho.' : 'Ainda não tem conta? Toque em "Criar conta" acima.'}</p>
+        </div>
+      </div>
+    `;
+    document.getElementById('authTabLogin').addEventListener('click', ()=>{ state.authView='login'; state.authError=null; renderAuthScreen(); });
+    document.getElementById('authTabSignup').addEventListener('click', ()=>{ state.authView='signup'; state.authError=null; renderAuthScreen(); });
+    document.getElementById('authSubmit').addEventListener('click', handleAuthSubmit);
+    document.getElementById('authPassword').addEventListener('keydown', e=>{ if(e.key==='Enter') handleAuthSubmit(); });
+  }
+
+  async function handleAuthSubmit(){
+    const email = document.getElementById('authEmail').value.trim();
+    const password = document.getElementById('authPassword').value;
+    if(!email || !password){ state.authError = 'Preencha e-mail e senha.'; renderAuthScreen(); return; }
+    state.authLoading = true; state.authError = null; renderAuthScreen();
+    try{
+      if(state.authView === 'signup'){
+        const { error } = await supabase.auth.signUp({ email, password });
+        if(error) throw error;
+        state.authError = null;
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if(error) throw error;
+      }
+      // onAuthStateChange cuida de carregar os dados quando a sessão for confirmada
+    }catch(e){
+      state.authError = translateAuthError(e.message);
+    }
+    state.authLoading = false;
+    renderAuthScreen();
+  }
+
+  function translateAuthError(msg){
+    if(!msg) return 'Não foi possível concluir. Tente novamente.';
+    if(/invalid login credentials/i.test(msg)) return 'E-mail ou senha incorretos.';
+    if(/already registered|user already exists/i.test(msg)) return 'Já existe uma conta com esse e-mail. Tente entrar.';
+    if(/password.*(least|6)/i.test(msg)) return 'A senha precisa ter pelo menos 6 caracteres.';
+    if(/email.*invalid/i.test(msg)) return 'E-mail inválido.';
+    return msg;
+  }
+
+  // ---------- Bootstrap ----------
+  if(SUPABASE_URL.startsWith('COLE_AQUI') || SUPABASE_ANON_KEY.startsWith('COLE_AQUI')){
+    document.getElementById('app').innerHTML = `
+      <div class="loading-msg" style="text-align:left; line-height:1.6;">
+        <strong style="color:var(--gold);">Configuração pendente</strong><br><br>
+        Este app ainda não está conectado a um banco de dados. Abra o arquivo HTML num editor de texto e substitua
+        <code>SUPABASE_URL</code> e <code>SUPABASE_ANON_KEY</code>, no topo do &lt;script&gt;, pelas credenciais do seu projeto Supabase
+        (Project Settings → API).
+      </div>`;
+  } else {
+    supabase.auth.onAuthStateChange((_event, session)=>{
+      state.session = session;
+      if(session){ loadAllData(); }
+      else { state.commissions=[]; state.expenses=[]; state.compromissos=[]; state.goals={}; state.ready=false; render(); }
+    });
+    supabase.auth.getSession().then(({data})=>{
+      state.session = data.session;
+      if(state.session){ loadAllData(); } else { render(); }
+    });
+  }
+})();
+</script>
+</body>
+</html>
