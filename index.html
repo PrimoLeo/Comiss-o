@@ -105,19 +105,26 @@
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:16px;
+    margin-bottom:14px;
+  }
+  .period-select-row{
+    display:flex;
+    gap:8px;
+    margin-bottom:14px;
   }
   .month-select{
     background:rgba(217,180,74,0.1);
     border:1px solid var(--border-glow-strong);
     color:var(--cream);
     font-family:'IBM Plex Mono',monospace;
-    font-size:10.5px;
-    letter-spacing:.06em;
-    text-transform:uppercase;
-    padding:5px 9px;
+    font-size:16px;
+    letter-spacing:.02em;
+    padding:7px 9px;
     border-radius:7px;
+    flex:1;
+    min-width:0;
   }
+  .period-select-row .month-select:last-child{ flex:0 0 auto; min-width:78px; }
   .cover-title{
     font-family:'Fraunces',serif;
     font-weight:500;
@@ -465,8 +472,6 @@
   .sum-value.pendente{color:var(--amber);}
   .sum-value.gastos{color:var(--rose);}
   .sum-value.saldo{color:var(--gold-soft);}
-  .reset-row{text-align:center; margin-top:16px;}
-  .reset-row button{background:none; border:none; color:var(--cream-faint); font-family:'IBM Plex Mono',monospace; font-size:10.5px; text-decoration:underline; cursor:pointer;}
 
   /* ---------- MODAL ---------- */
   .overlay{
@@ -498,10 +503,10 @@
     letter-spacing:.06em; color:var(--cream-faint); margin-bottom:5px;
   }
   .field input, .field select, .field textarea{
-    width:100%; padding:10px 11px; border-radius:9px;
+    width:100%; padding:11px 11px; border-radius:9px;
     border:1px solid var(--border-glow-strong);
     background:rgba(0,0,0,0.22);
-    font-family:'Inter',sans-serif; font-size:14px; color:var(--cream);
+    font-family:'Inter',sans-serif; font-size:16px; color:var(--cream);
   }
   .field textarea{resize:vertical; min-height:60px;}
   .field-row{display:flex; gap:10px;}
@@ -652,6 +657,9 @@
   };
 
   function monthKey(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0'); }
+  const MONTH_NAMES = ['Janeiro','Fevereiro','Março','Abril','Maio','Junho','Julho','Agosto','Setembro','Outubro','Novembro','Dezembro'];
+  function monthNameOnly(monthKeyStr){ const m = Number(monthKeyStr.split('-')[1]); return MONTH_NAMES[m-1]; }
+  function yearOf(monthKeyStr){ return Number(monthKeyStr.split('-')[0]); }
   function monthLabel(key){
     const [y,m] = key.split('-').map(Number);
     const d = new Date(y, m-1, 1);
@@ -788,16 +796,17 @@
     state.compromissos = state.compromissos.filter(c=>c.id!==id);
   }
 
-  function monthsAvailable(){
-    const set = new Set([state.month]);
-    state.commissions.forEach(c=>set.add(c.date.slice(0,7)));
-    state.expenses.forEach(e=>set.add(e.date.slice(0,7)));
-    state.compromissos.forEach(c=>set.add(c.date.slice(0,7)));
-    return Array.from(set).sort().reverse();
+  function yearsAvailable(){
+    const nowYear = new Date().getFullYear();
+    const set = new Set([nowYear-1, nowYear, nowYear+1, yearOf(state.month)]);
+    state.commissions.forEach(c=>set.add(yearOf(c.date.slice(0,7))));
+    state.expenses.forEach(e=>set.add(yearOf(e.date.slice(0,7))));
+    state.compromissos.forEach(c=>set.add(yearOf(c.date.slice(0,7))));
+    return Array.from(set).sort((a,b)=>a-b);
   }
   function commissionsForMonth(){ return state.commissions.filter(c=>c.date.slice(0,7)===state.month).sort((a,b)=> a.date<b.date?1:-1); }
   function expensesForMonth(){ return state.expenses.filter(e=>e.date.slice(0,7)===state.month).sort((a,b)=> a.date<b.date?1:-1); }
-  function overdueCommissionCount(){ return state.commissions.filter(isOverdue).length; }
+  function overdueCommissionCount(){ return state.commissions.filter(c=>isOverdue(c) && c.date.slice(0,7)===state.month).length; }
   function overdueCompromissoCount(){ return state.compromissos.filter(isOverdueCompromisso).length; }
 
   function totals(){
@@ -836,8 +845,12 @@
     const overdueCompN = overdueCompromissoCount();
     const insights = insightsForMonth();
 
-    const monthOptions = monthsAvailable().map(k=>
-      `<option value="${k}" ${k===state.month?'selected':''}>${monthLabel(k)}</option>`
+    const monthOptions = MONTH_NAMES.map((name,i)=>{
+      const k = `${yearOf(state.month)}-${String(i+1).padStart(2,'0')}`;
+      return `<option value="${k}" ${k===state.month?'selected':''}>${name}</option>`;
+    }).join('');
+    const yearOptions = yearsAvailable().map(y=>
+      `<option value="${y}" ${y===yearOf(state.month)?'selected':''}>${y}</option>`
     ).join('');
 
     app.innerHTML = `
@@ -847,10 +860,11 @@
         <div class="cover glass">
           <div class="cover-eyebrow">
             <span>Livro-caixa do vendedor</span>
-            <span style="display:flex; gap:8px; align-items:center;">
-              <select class="month-select" id="monthSelect">${monthOptions}</select>
-              <button class="logout-btn" id="logoutBtn" title="Sair da conta">Sair</button>
-            </span>
+            <button class="logout-btn" id="logoutBtn" title="Sair da conta">Sair</button>
+          </div>
+          <div class="period-select-row">
+            <select class="month-select" id="monthSelect">${monthOptions}</select>
+            <select class="month-select" id="yearSelect">${yearOptions}</select>
           </div>
           <p class="cover-title">Recebido em ${monthLabel(state.month)}</p>
           <p class="cover-amount">${fmtMoney(t.recebido)}</p>
@@ -883,7 +897,6 @@
             <div class="sum-card"><div class="sum-label">Despesas</div><div class="sum-value gastos">${fmtMoney(t.gastos)}</div></div>
             <div class="sum-card"><div class="sum-label">Saldo líquido</div><div class="sum-value saldo">${fmtMoney(t.saldo)}</div></div>
           </div>
-          <div class="reset-row"><button id="resetBtn">limpar todos os dados</button></div>
         </div>
       </div>
     `;
@@ -956,9 +969,9 @@
   }
 
   function renderRecebimentos(){
-    const pending = state.commissions.filter(c=>c.status==='pendente');
-    const head = `<div class="page-head"><div><h2>Recebimentos</h2><p class="hint">Comissões pendentes, organizadas por urgência</p></div></div>`;
-    if(pending.length===0) return head + `<div class="empty">Nenhuma comissão pendente. Tudo recebido!</div>`;
+    const pending = state.commissions.filter(c=>c.status==='pendente' && c.date.slice(0,7)===state.month);
+    const head = `<div class="page-head"><div><h2>Recebimentos</h2><p class="hint">Comissões pendentes de ${monthLabel(state.month)}, por urgência</p></div></div>`;
+    if(pending.length===0) return head + `<div class="empty">Nenhuma comissão pendente em ${monthLabel(state.month)}.</div>`;
     const today = todayIso(), weekEnd = addDays(today,6), monthEnd = endOfMonthIso(today);
     const groups = {atrasado:[], hoje:[], semana:[], mes:[], depois:[], semData:[]};
     pending.forEach(c=>{
@@ -974,7 +987,7 @@
     let html = head;
     sections.forEach(([key,label,isOv])=>{
       const items = groups[key]; if(items.length===0) return;
-      html += `<div class="agenda-group ${isOv?'overdue':''}"><div class="agenda-group-head"><span class="agenda-group-title">${label} (${items.length})</span><span class="agenda-group-line"></span></div>${items.map(c=>commissionStub(c,{showMonth:true})).join('')}</div>`;
+      html += `<div class="agenda-group ${isOv?'overdue':''}"><div class="agenda-group-head"><span class="agenda-group-title">${label} (${items.length})</span><span class="agenda-group-line"></span></div>${items.map(c=>commissionStub(c,{showMonth:false})).join('')}</div>`;
     });
     return html;
   }
@@ -1167,6 +1180,12 @@
   function attachEvents(){
     const monthSelect = document.getElementById('monthSelect');
     if(monthSelect) monthSelect.addEventListener('change', e=>{ state.month = e.target.value; render(); });
+    const yearSelect = document.getElementById('yearSelect');
+    if(yearSelect) yearSelect.addEventListener('change', e=>{
+      const monthPart = state.month.slice(5,7);
+      state.month = `${e.target.value}-${monthPart}`;
+      render();
+    });
 
     const tabMap = {tabComissoes:'comissoes', tabCompromissos:'compromissos', tabRecebimentos:'recebimentos', tabDespesas:'despesas', tabHistorico:'historico'};
     Object.keys(tabMap).forEach(id=>{
@@ -1178,7 +1197,6 @@
     const addD = document.getElementById('addDespesa'); if(addD) addD.addEventListener('click', openExpenseForm);
     const addP = document.getElementById('addCompromisso'); if(addP) addP.addEventListener('click', openCompromissoForm);
     const goalBtn = document.getElementById('editGoalBtn'); if(goalBtn) goalBtn.addEventListener('click', openGoalForm);
-    const resetBtn = document.getElementById('resetBtn'); if(resetBtn) resetBtn.addEventListener('click', confirmReset);
     const logoutBtn = document.getElementById('logoutBtn'); if(logoutBtn) logoutBtn.addEventListener('click', async ()=>{ await supabase.auth.signOut(); });
 
     document.querySelectorAll('[data-action="mark"]').forEach(b=>b.addEventListener('click', ()=>toggleStatus(b.dataset.id,'recebido')));
@@ -1357,26 +1375,6 @@
       const lossNote = document.getElementById('f_lossnote').value.trim() || null;
       await updateCompromisso(compromissoId, { status:'concluido', outcome:'perdido', lossReason:reason, lossNote });
       closeOverlay(); state.tab = 'compromissos'; render();
-    });
-  }
-
-  function confirmReset(){
-    openOverlay(`
-      <h3>Limpar todos os dados?</h3>
-      <p class="sheet-sub">Isso vai apagar todas as comissões, despesas, compromissos e metas salvas da sua conta. Essa ação não pode ser desfeita.</p>
-      <div class="sheet-actions"><button class="btn-cancel" id="cancelBtn">Cancelar</button><button class="btn-danger" id="confirmResetBtn">Apagar tudo</button></div>
-    `);
-    document.getElementById('cancelBtn').addEventListener('click', closeOverlay);
-    document.getElementById('confirmResetBtn').addEventListener('click', async ()=>{
-      const userId = state.session.user.id;
-      await Promise.all([
-        supabase.from('commissions').delete().eq('user_id', userId),
-        supabase.from('expenses').delete().eq('user_id', userId),
-        supabase.from('compromissos').delete().eq('user_id', userId),
-        supabase.from('goals').delete().eq('user_id', userId),
-      ]);
-      state.commissions = []; state.expenses = []; state.goals = {}; state.compromissos = [];
-      closeOverlay(); render();
     });
   }
 
