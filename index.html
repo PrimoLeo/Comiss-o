@@ -89,12 +89,10 @@
     box-shadow:0 10px 30px rgba(0,0,0,0.28), inset 0 1px 0 rgba(255,255,255,0.04);
   }
 
-  /* ---------- HERO / COVER ---------- */
-  .cover{
+  /* ---------- TOPBAR (sempre visível) ---------- */
+  .topbar{
     margin:16px 16px 0;
-    padding:24px 22px 22px;
-    position:relative;
-    overflow:hidden;
+    padding:16px 18px;
   }
   .cover-eyebrow{
     font-family:'IBM Plex Mono',monospace;
@@ -105,12 +103,21 @@
     display:flex;
     justify-content:space-between;
     align-items:center;
-    margin-bottom:14px;
+    margin-bottom:0;
   }
   .period-select-row{
     display:flex;
     gap:8px;
-    margin-bottom:14px;
+    margin-top:14px;
+    margin-bottom:0;
+  }
+
+  /* ---------- HERO / COVER (só na tela inicial) ---------- */
+  .cover{
+    margin:12px 16px 0;
+    padding:24px 22px 22px;
+    position:relative;
+    overflow:hidden;
   }
   .month-select{
     background:rgba(217,180,74,0.1);
@@ -262,49 +269,62 @@
     padding:8px 4px 2px;
   }
 
-  /* ---------- TABS ---------- */
-  .tabs{
+  /* ---------- BOTTOM NAV (fixo, estilo Instagram) ---------- */
+  .bottom-nav{
+    position:fixed;
+    left:0; right:0; bottom:0;
+    margin:0 auto;
+    max-width:720px;
     display:flex;
-    gap:8px;
-    padding:16px 16px 10px;
-    overflow-x:auto;
-    scrollbar-width:none;
+    justify-content:space-around;
+    align-items:center;
+    padding:9px 4px calc(9px + env(safe-area-inset-bottom, 0px));
+    border-radius:20px 20px 0 0;
+    z-index:40;
   }
-  .tabs::-webkit-scrollbar{display:none;}
-  .tab{
-    flex:0 0 auto;
-    padding:9px 15px;
-    font-family:'Fraunces',serif;
-    font-weight:600;
-    font-size:13.5px;
-    color:var(--cream-dim);
-    background:rgba(255,255,255,0.03);
-    border:1px solid var(--border-glow);
-    border-radius:30px;
+  .nav-item{
+    flex:1;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:3px;
+    background:none;
+    border:none;
     cursor:pointer;
-    transition:all .2s;
-    white-space:nowrap;
+    color:var(--cream-faint);
+    padding:5px 2px;
     position:relative;
+    transition:color .15s;
   }
-  .tab.active{
-    color:var(--void);
-    background:linear-gradient(135deg, var(--gold-soft), var(--gold));
-    border-color:transparent;
-    box-shadow:0 4px 16px var(--gold-glow);
+  .nav-item svg{ width:22px; height:22px; }
+  .nav-item span{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:8.5px;
+    letter-spacing:.02em;
+    text-transform:uppercase;
+    white-space:nowrap;
   }
-  .tab-badge{
-    display:inline-block;
+  .nav-item.active{ color:var(--gold-soft); }
+  .nav-item.active svg{ filter:drop-shadow(0 0 6px var(--gold-glow)); }
+  .nav-badge{
+    position:absolute;
+    top:0; right:14%;
     background:var(--rose);
     color:var(--void);
     font-family:'IBM Plex Mono',monospace;
-    font-size:9px;
+    font-size:8.5px;
     font-weight:700;
     border-radius:20px;
-    padding:1px 6px;
-    margin-left:5px;
+    min-width:14px;
+    height:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:0 3px;
   }
 
   /* ---------- PAGE ---------- */
+  .content{ padding-bottom:92px; }
   .page{padding:4px 16px 4px;}
   .page-head{
     display:flex;
@@ -641,6 +661,22 @@
     {id:'outro', label:'Outro'},
   ];
   const TIPO_LABEL = {visita:'Visita', reuniao:'Reunião', ligacao:'Ligação'};
+  const PAYMENT_TYPES = [
+    {id:'avista_financiamento', label:'À vista - Financiamento'},
+    {id:'avista_boleto_pix', label:'À vista - Boleto/PIX'},
+    {id:'parcelado_boleto', label:'Parcelado Boleto'},
+    {id:'entrada_saldo', label:'Entrada + Saldo'},
+  ];
+  function paymentTypeLabel(id){ return (PAYMENT_TYPES.find(p=>p.id===id)||{}).label || 'À vista'; }
+
+  const ICON_ATTRS = 'viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
+  const ICONS = {
+    home: `<svg ${ICON_ATTRS}><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1h4v-6h3v6h4a1 1 0 0 0 1-1v-9"/></svg>`,
+    comissoes: `<svg ${ICON_ATTRS}><path d="M6 3h12v18l-3-2-3 2-3-2-3 2V3z"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="9" y1="12" x2="15" y2="12"/></svg>`,
+    compromissos: `<svg ${ICON_ATTRS}><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="16" y1="3" x2="16" y2="7"/></svg>`,
+    recebimentos: `<svg ${ICON_ATTRS}><path d="M3 10 6 4h12l3 6"/><path d="M3 10v8a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1v-8"/><path d="M3 10h5a1 1 0 0 1 1 1 3 3 0 0 0 6 0 1 1 0 0 1 1-1h5"/></svg>`,
+    historico: `<svg ${ICON_ATTRS}><polyline points="3,17 9,11 13,15 21,6"/><polyline points="15,6 21,6 21,12"/></svg>`,
+  };
 
   const state = {
     commissions: [],
@@ -648,7 +684,7 @@
     goals: {},
     compromissos: [],
     month: monthKey(new Date()),
-    tab: 'comissoes',
+    tab: 'home',
     ready:false,
     session: null,
     authView: 'login', // 'login' | 'signup'
@@ -676,6 +712,7 @@
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
   function todayIso(){ return new Date().toISOString().slice(0,10); }
   function addDays(iso,n){ const d=new Date(iso+'T00:00:00'); d.setDate(d.getDate()+n); return d.toISOString().slice(0,10); }
+  function addMonths(iso,n){ const d=new Date(iso+'T00:00:00'); d.setMonth(d.getMonth()+n); return d.toISOString().slice(0,10); }
   function endOfMonthIso(iso){ const [y,m]=iso.split('-').map(Number); return new Date(y,m,0).toISOString().slice(0,10); }
   function isOverdue(c){ return c.status==='pendente' && c.expectedDate && c.expectedDate < todayIso(); }
   function isOverdueCompromisso(c){ return c.status==='agendado' && c.date < todayIso(); }
@@ -683,7 +720,9 @@
 
   // ---------- Mapeamento entre colunas do banco (snake_case) e o app (camelCase) ----------
   function mapCommissionFromDb(r){
-    return { id:r.id, client:r.client, value:Number(r.value), date:r.date, expectedDate:r.expected_date, status:r.status, receivedDate:r.received_date };
+    return { id:r.id, client:r.client, value:Number(r.value), date:r.date, expectedDate:r.expected_date, status:r.status, receivedDate:r.received_date,
+      saleGroupId:r.sale_group_id || r.id, paymentType:r.payment_type, installmentLabel:r.installment_label,
+      installmentIndex:r.installment_index, totalInstallments:r.total_installments || 1 };
   }
   function mapExpenseFromDb(r){
     return { id:r.id, description:r.description, value:Number(r.value), date:r.date, category:r.category };
@@ -706,7 +745,7 @@
       state.expenses = (eRes.data||[]).map(mapExpenseFromDb);
       state.compromissos = (pRes.data||[]).map(mapCompromissoFromDb);
       const goals = {};
-      (gRes.data||[]).forEach(r=>{ goals[r.month] = { minima:Number(r.minima)||0, ideal:Number(r.ideal)||0, superada:Number(r.superada)||0 }; });
+      (gRes.data||[]).forEach(r=>{ goals[r.month] = Number(r.ideal)||0; });
       state.goals = goals;
     }catch(e){
       console.error('Erro ao carregar dados', e);
@@ -716,15 +755,19 @@
     render();
   }
 
-  async function insertCommission(obj){
+  async function insertSaleCommissions(installments){
+    // installments: array de objetos { client, value, date, expectedDate, paymentType, installmentLabel, installmentIndex, totalInstallments, saleGroupId }
     const userId = state.session.user.id;
-    const { data, error } = await supabase.from('commissions').insert({
+    const rows = installments.map(obj => ({
       user_id:userId, client:obj.client, value:obj.value, date:obj.date,
-      expected_date:obj.expectedDate, status:obj.status, received_date:obj.receivedDate
-    }).select().single();
+      expected_date:obj.expectedDate, status:'pendente', received_date:null,
+      sale_group_id:obj.saleGroupId, payment_type:obj.paymentType, installment_label:obj.installmentLabel,
+      installment_index:obj.installmentIndex, total_installments:obj.totalInstallments
+    }));
+    const { data, error } = await supabase.from('commissions').insert(rows).select();
     if(error){ console.error(error); return null; }
-    const mapped = mapCommissionFromDb(data);
-    state.commissions.push(mapped);
+    const mapped = data.map(mapCommissionFromDb);
+    state.commissions.push(...mapped);
     return mapped;
   }
   async function updateCommission(id, patch){
@@ -740,6 +783,11 @@
     const { error } = await supabase.from('commissions').delete().eq('id', id);
     if(error){ console.error(error); return; }
     state.commissions = state.commissions.filter(c=>c.id!==id);
+  }
+  async function deleteSaleGroupDb(saleGroupId){
+    const { error } = await supabase.from('commissions').delete().eq('sale_group_id', saleGroupId);
+    if(error){ console.error(error); return; }
+    state.commissions = state.commissions.filter(c=>c.saleGroupId!==saleGroupId);
   }
 
   async function insertExpense(obj){
@@ -758,13 +806,13 @@
     state.expenses = state.expenses.filter(e=>e.id!==id);
   }
 
-  async function saveGoalMonth(month, goal){
+  async function saveGoalMonth(month, value){
     const userId = state.session.user.id;
     const { error } = await supabase.from('goals').upsert({
-      user_id:userId, month, minima:goal.minima, ideal:goal.ideal, superada:goal.superada
+      user_id:userId, month, minima:0, ideal:value, superada:0
     }, {onConflict:'user_id,month'});
     if(error){ console.error(error); return; }
-    state.goals[month] = goal;
+    state.goals[month] = value;
   }
 
   async function insertCompromisso(obj){
@@ -814,7 +862,7 @@
     const recebido = cs.filter(c=>c.status==='recebido').reduce((s,c)=>s+c.value,0);
     const pendente = cs.filter(c=>c.status==='pendente').reduce((s,c)=>s+c.value,0);
     const gastos = es.reduce((s,e)=>s+e.value,0);
-    return {recebido, pendente, gastos, saldo: recebido-gastos};
+    return {recebido, pendente, gastos, saldo: recebido-gastos, vendido: recebido+pendente};
   }
 
   function insightsForMonth(){
@@ -853,85 +901,92 @@
       `<option value="${y}" ${y===yearOf(state.month)?'selected':''}>${y}</option>`
     ).join('');
 
+    const showPeriodSelector = state.tab !== 'historico';
+
+    let mainContent;
+    if(state.tab==='home'){
+      mainContent = `
+        <div class="cover glass">
+          <p class="cover-title">Recebido em ${monthLabel(state.month)}</p>
+          <p class="cover-amount">${fmtMoney(t.recebido)}</p>
+          <p class="cover-sub">A receber: ${fmtMoney(t.pendente)}</p>
+        </div>
+        ${renderGauge(g, t.vendido)}
+        ${renderInsights(insights)}
+      `;
+    } else if(state.tab==='comissoes'){
+      mainContent = `<div class="page">${renderComissoes()}</div>`;
+    } else if(state.tab==='compromissos'){
+      mainContent = `<div class="page">${renderCompromissos()}</div>`;
+    } else if(state.tab==='recebimentos'){
+      mainContent = `<div class="page">${renderRecebimentos()}</div>`;
+    } else if(state.tab==='historico'){
+      mainContent = `<div class="page">${renderHistorico()}</div>`;
+    }
+
     app.innerHTML = `
       <div class="glow-blob gold"></div>
       <div class="glow-blob sage"></div>
       <div class="content">
-        <div class="cover glass">
+        <div class="topbar glass">
           <div class="cover-eyebrow">
             <span>Livro-caixa do vendedor</span>
             <button class="logout-btn" id="logoutBtn" title="Sair da conta">Sair</button>
           </div>
+          ${showPeriodSelector ? `
           <div class="period-select-row">
             <select class="month-select" id="monthSelect">${monthOptions}</select>
             <select class="month-select" id="yearSelect">${yearOptions}</select>
-          </div>
-          <p class="cover-title">Recebido em ${monthLabel(state.month)}</p>
-          <p class="cover-amount">${fmtMoney(t.recebido)}</p>
-          <p class="cover-sub">A receber: ${fmtMoney(t.pendente)} · Despesas: ${fmtMoney(t.gastos)}</p>
+          </div>` : ''}
         </div>
 
-        ${renderGauge(g, t.recebido)}
-        ${renderInsights(insights)}
-
-        <div class="tabs">
-          <button class="tab ${state.tab==='comissoes'?'active':''}" id="tabComissoes">Comissões</button>
-          <button class="tab ${state.tab==='compromissos'?'active':''}" id="tabCompromissos">Compromissos${overdueCompN>0?`<span class="tab-badge">${overdueCompN}</span>`:''}</button>
-          <button class="tab ${state.tab==='recebimentos'?'active':''}" id="tabRecebimentos">Recebimentos${overdueN>0?`<span class="tab-badge">${overdueN}</span>`:''}</button>
-          <button class="tab ${state.tab==='despesas'?'active':''}" id="tabDespesas">Despesas</button>
-          <button class="tab ${state.tab==='historico'?'active':''}" id="tabHistorico">Histórico</button>
-        </div>
-
-        <div class="page">
-          ${state.tab==='comissoes' ? renderComissoes()
-            : state.tab==='compromissos' ? renderCompromissos()
-            : state.tab==='recebimentos' ? renderRecebimentos()
-            : state.tab==='historico' ? renderHistorico()
-            : renderDespesas()}
-        </div>
-
-        <div class="summary glass">
-          <div class="summary-grid">
-            <div class="sum-card"><div class="sum-label">Recebido</div><div class="sum-value recebido">${fmtMoney(t.recebido)}</div></div>
-            <div class="sum-card"><div class="sum-label">A receber</div><div class="sum-value pendente">${fmtMoney(t.pendente)}</div></div>
-            <div class="sum-card"><div class="sum-label">Despesas</div><div class="sum-value gastos">${fmtMoney(t.gastos)}</div></div>
-            <div class="sum-card"><div class="sum-label">Saldo líquido</div><div class="sum-value saldo">${fmtMoney(t.saldo)}</div></div>
-          </div>
-        </div>
+        ${mainContent}
       </div>
+
+      <nav class="bottom-nav glass">
+        <button class="nav-item ${state.tab==='home'?'active':''}" id="navHome">
+          ${ICONS.home}<span>Início</span>
+        </button>
+        <button class="nav-item ${state.tab==='comissoes'?'active':''}" id="navComissoes">
+          ${ICONS.comissoes}<span>Comissões</span>
+        </button>
+        <button class="nav-item ${state.tab==='compromissos'?'active':''}" id="navCompromissos">
+          ${ICONS.compromissos}<span>Compromissos</span>${overdueCompN>0?`<span class="nav-badge">${overdueCompN}</span>`:''}
+        </button>
+        <button class="nav-item ${state.tab==='recebimentos'?'active':''}" id="navRecebimentos">
+          ${ICONS.recebimentos}<span>Recebimentos</span>${overdueN>0?`<span class="nav-badge">${overdueN}</span>`:''}
+        </button>
+        <button class="nav-item ${state.tab==='historico'?'active':''}" id="navHistorico">
+          ${ICONS.historico}<span>Histórico</span>
+        </button>
+      </nav>
     `;
     attachEvents();
   }
 
-  function renderGauge(g, recebido){
-    if(!g || (!g.minima && !g.ideal && !g.superada)){
+  function renderGauge(goalValue, vendido){
+    if(!goalValue){
       return `
         <div class="gauge-wrap glass">
           <div class="gauge-row"><span>Meta do mês</span><button id="editGoalBtn">definir meta</button></div>
           <div class="gauge-track"><div class="gauge-fill" style="width:0%"></div></div>
-          <div class="gauge-caption">Defina metas mínima, ideal e superada para este mês</div>
+          <div class="gauge-caption">Defina a meta de vendas deste mês</div>
         </div>`;
     }
-    const max = g.superada || g.ideal || g.minima || 1;
-    const pct = Math.min(100, (recebido/max)*100);
-    const minimaPct = Math.min(100, (g.minima/max)*100);
-    const idealPct = Math.min(100, (g.ideal/max)*100);
-    let zone='zone-base', caption=`Faltam ${fmtMoney(Math.max(0,g.minima-recebido))} para a meta mínima`;
-    if(recebido >= (g.superada||Infinity)){ zone='zone-superada'; caption = `Meta superada! ${fmtMoney(recebido-g.superada)} além do previsto`; }
-    else if(recebido >= (g.ideal||Infinity)){ zone='zone-ideal'; caption = `Faltam ${fmtMoney(g.superada-recebido)} para superar a meta`; }
-    else if(recebido >= (g.minima||0)){ zone='zone-minima'; caption = `Faltam ${fmtMoney(g.ideal-recebido)} para a meta ideal`; }
-    const supered = recebido >= (g.superada||Infinity) && g.superada;
+    const pct = Math.min(100, Math.round((vendido/goalValue)*100));
+    const atingida = vendido >= goalValue;
+    const zone = atingida ? 'zone-superada' : pct>=60 ? 'zone-ideal' : pct>=30 ? 'zone-minima' : 'zone-base';
+    const caption = atingida
+      ? `Meta batida! ${fmtMoney(vendido-goalValue)} além do previsto`
+      : `Faltam ${fmtMoney(goalValue-vendido)} · ${pct}% da meta atingida`;
     return `
       <div class="gauge-wrap glass">
-        ${supered ? '<div class="goal-seal">SUPERADA</div>' : ''}
+        ${atingida ? '<div class="goal-seal">META BATIDA</div>' : ''}
         <div class="gauge-row"><span>Meta do mês</span><button id="editGoalBtn">editar</button></div>
         <div class="gauge-track">
           <div class="gauge-fill ${zone}" style="width:${pct}%"></div>
-          ${g.minima ? `<div class="gauge-tick" style="left:${minimaPct}%"></div><div class="gauge-tick-label" style="left:${minimaPct}%">mín</div>` : ''}
-          ${g.ideal ? `<div class="gauge-tick" style="left:${idealPct}%"></div><div class="gauge-tick-label" style="left:${idealPct}%">ideal</div>` : ''}
-          <div class="gauge-tick" style="left:100%"></div><div class="gauge-tick-label" style="left:100%">super</div>
         </div>
-        <div class="gauge-caption ${supered?'superada':''}">${caption}</div>
+        <div class="gauge-caption ${atingida?'superada':''}">${caption}</div>
       </div>`;
   }
 
@@ -961,11 +1016,52 @@
       </div>`;
   }
 
+  function groupBySale(list){
+    const map = new Map();
+    list.forEach(c=>{
+      const key = c.saleGroupId || c.id;
+      if(!map.has(key)) map.set(key, []);
+      map.get(key).push(c);
+    });
+    return Array.from(map.values());
+  }
+
   function renderComissoes(){
     const list = commissionsForMonth();
-    const head = `<div class="page-head"><h2>Comissões</h2><button class="add-btn" id="addComissao">+ Nova comissão</button></div>`;
-    if(list.length===0) return head + `<div class="empty">Nenhuma comissão lançada em ${monthLabel(state.month)}.<br>Registre uma venda para começar a acompanhar o recebimento.</div>`;
-    return head + list.map(c=>commissionStub(c, {showMonth:false})).join('');
+    const head = `<div class="page-head"><h2>Comissões</h2><button class="add-btn" id="addComissao">+ Nova venda</button></div>`;
+    if(list.length===0) return head + `<div class="empty">Nenhuma venda lançada em ${monthLabel(state.month)}.<br>Registre uma venda para começar a acompanhar o recebimento.</div>`;
+    const groups = groupBySale(list).sort((a,b)=> a[0].date<b[0].date?1:-1);
+    return head + groups.map(g => g.length>1 ? saleGroupStub(g) : commissionStub(g[0], {})).join('');
+  }
+
+  function saleGroupStub(items){
+    const first = items[0];
+    const total = items.reduce((s,c)=>s+c.value,0);
+    const receivedCount = items.filter(c=>c.status==='recebido').length;
+    const totalCount = first.totalInstallments || items.length;
+    const allReceived = receivedCount === totalCount;
+    const next = items.filter(c=>c.status==='pendente').sort((a,b)=> (a.expectedDate||'')<(b.expectedDate||'')?-1:1)[0];
+    return `
+      <div class="stub ${allReceived?'recebido':''}" data-sale-group="${first.saleGroupId}">
+        ${allReceived ? '<div class="stamp stamp-sage">RECEBIDO</div>' : ''}
+        <div class="stub-row">
+          <div>
+            <div class="stub-desc">${escapeHtml(first.client)}</div>
+            <div class="stub-date">Venda em ${fmtDate(first.date)}</div>
+          </div>
+          <div class="stub-value">${fmtMoney(total)}</div>
+        </div>
+        ${!allReceived && next ? `<div class="stub-note">Próxima parcela: ${fmtDate(next.expectedDate)} · ${fmtMoney(next.value)}</div>` : ''}
+        <div class="stub-foot">
+          <span style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
+            <span class="pill cat-pill">${paymentTypeLabel(first.paymentType)}</span>
+            <span class="pill status-pill ${allReceived?'':''}">${receivedCount} de ${totalCount} recebidas</span>
+          </span>
+          <span class="stub-actions">
+            <button data-action="delete-sale-group" data-sale-group="${first.saleGroupId}">Excluir</button>
+          </span>
+        </div>
+      </div>`;
   }
 
   function renderRecebimentos(){
@@ -987,21 +1083,19 @@
     let html = head;
     sections.forEach(([key,label,isOv])=>{
       const items = groups[key]; if(items.length===0) return;
-      html += `<div class="agenda-group ${isOv?'overdue':''}"><div class="agenda-group-head"><span class="agenda-group-title">${label} (${items.length})</span><span class="agenda-group-line"></span></div>${items.map(c=>commissionStub(c,{showMonth:false})).join('')}</div>`;
+      html += `<div class="agenda-group ${isOv?'overdue':''}"><div class="agenda-group-head"><span class="agenda-group-title">${label} (${items.length})</span><span class="agenda-group-line"></span></div>${items.map(c=>commissionStub(c,{})).join('')}</div>`;
     });
     return html;
   }
 
   function commissionStub(c, opts){
-    opts = opts || {};
     const overdue = isOverdue(c);
-    const monthDiffers = opts.showMonth && c.date.slice(0,7) !== state.month;
     return `
       <div class="stub ${c.status==='recebido'?'recebido':''} ${overdue?'overdue':''}" data-id="${c.id}">
         ${c.status==='recebido' ? '<div class="stamp stamp-sage">RECEBIDO</div>' : ''}
         <div class="stub-row">
           <div>
-            <div class="stub-desc">${escapeHtml(c.client)}</div>
+            <div class="stub-desc">${escapeHtml(c.client)}${c.installmentLabel ? ' · '+escapeHtml(c.installmentLabel) : ''}</div>
             <div class="stub-date ${overdue?'overdue-text':''}">${c.expectedDate ? (overdue?'Venceu em ':'Previsão: ')+fmtDate(c.expectedDate) : 'Venda em '+fmtDate(c.date)}</div>
           </div>
           <div class="stub-value">${fmtMoney(c.value)}</div>
@@ -1009,7 +1103,7 @@
         <div class="stub-foot">
           <span style="display:flex; gap:6px; align-items:center; flex-wrap:wrap;">
             <span class="pill status-pill">${c.status==='recebido' ? 'Recebido' : overdue ? 'Atrasado' : 'A receber'}</span>
-            ${monthDiffers ? `<span class="pill month-tag">${monthLabelShort(c.date.slice(0,7))}</span>` : ''}
+            ${c.paymentType ? `<span class="pill cat-pill">${paymentTypeLabel(c.paymentType)}</span>` : ''}
           </span>
           <span class="stub-actions">
             ${c.status!=='recebido' ? `<button class="mark-btn" data-action="mark" data-id="${c.id}">Marcar recebido</button>` : `<button data-action="unmark" data-id="${c.id}">Desfazer</button>`}
@@ -1187,14 +1281,13 @@
       render();
     });
 
-    const tabMap = {tabComissoes:'comissoes', tabCompromissos:'compromissos', tabRecebimentos:'recebimentos', tabDespesas:'despesas', tabHistorico:'historico'};
-    Object.keys(tabMap).forEach(id=>{
+    const navMap = {navHome:'home', navComissoes:'comissoes', navCompromissos:'compromissos', navRecebimentos:'recebimentos', navHistorico:'historico'};
+    Object.keys(navMap).forEach(id=>{
       const el = document.getElementById(id);
-      if(el) el.addEventListener('click', ()=>{ state.tab = tabMap[id]; render(); });
+      if(el) el.addEventListener('click', ()=>{ state.tab = navMap[id]; render(); });
     });
 
     const addC = document.getElementById('addComissao'); if(addC) addC.addEventListener('click', openCommissionForm);
-    const addD = document.getElementById('addDespesa'); if(addD) addD.addEventListener('click', openExpenseForm);
     const addP = document.getElementById('addCompromisso'); if(addP) addP.addEventListener('click', openCompromissoForm);
     const goalBtn = document.getElementById('editGoalBtn'); if(goalBtn) goalBtn.addEventListener('click', openGoalForm);
     const logoutBtn = document.getElementById('logoutBtn'); if(logoutBtn) logoutBtn.addEventListener('click', async ()=>{ await supabase.auth.signOut(); });
@@ -1202,6 +1295,7 @@
     document.querySelectorAll('[data-action="mark"]').forEach(b=>b.addEventListener('click', ()=>toggleStatus(b.dataset.id,'recebido')));
     document.querySelectorAll('[data-action="unmark"]').forEach(b=>b.addEventListener('click', ()=>toggleStatus(b.dataset.id,'pendente')));
     document.querySelectorAll('[data-action="delete-commission"]').forEach(b=>b.addEventListener('click', ()=>deleteCommission(b.dataset.id)));
+    document.querySelectorAll('[data-action="delete-sale-group"]').forEach(b=>b.addEventListener('click', ()=>deleteSaleGroup(b.dataset.saleGroup)));
     document.querySelectorAll('[data-action="delete-expense"]').forEach(b=>b.addEventListener('click', ()=>deleteExpense(b.dataset.id)));
     document.querySelectorAll('[data-action="conclude"]').forEach(b=>b.addEventListener('click', ()=>openConcludeFlow(b.dataset.id)));
     document.querySelectorAll('[data-action="cancel-compromisso"]').forEach(b=>b.addEventListener('click', ()=>deleteCompromisso(b.dataset.id)));
@@ -1213,40 +1307,102 @@
     render();
   }
   async function deleteCommission(id){ await deleteCommissionDb(id); render(); }
+  async function deleteSaleGroup(saleGroupId){ await deleteSaleGroupDb(saleGroupId); render(); }
   async function deleteExpense(id){ await deleteExpenseDb(id); render(); }
   async function deleteCompromisso(id){ await deleteCompromissoDb(id); render(); }
 
   function openOverlay(html){ document.getElementById('sheet').innerHTML = html; document.getElementById('overlay').classList.add('open'); }
   function closeOverlay(){ document.getElementById('overlay').classList.remove('open'); }
 
+  function dynamicPaymentFields(type){
+    if(type==='parcelado_boleto'){
+      return `
+        <div class="field-row">
+          <div class="field"><label>Comissão por parcela</label><input type="number" id="f_installmentValue" step="0.01" min="0" placeholder="0,00"></div>
+          <div class="field"><label>Número de parcelas</label><input type="number" id="f_installmentCount" step="1" min="2" placeholder="Ex: 5"></div>
+        </div>`;
+    }
+    if(type==='entrada_saldo'){
+      return `
+        <div class="field"><label>Comissão da entrada</label><input type="number" id="f_entradaValue" step="0.01" min="0" placeholder="0,00"></div>
+        <div class="field-row">
+          <div class="field"><label>Comissão por parcela do saldo</label><input type="number" id="f_installmentValue" step="0.01" min="0" placeholder="0,00"></div>
+          <div class="field"><label>Nº de parcelas do saldo</label><input type="number" id="f_installmentCount" step="1" min="1" placeholder="Ex: 5"></div>
+        </div>`;
+    }
+    // à vista (financiamento ou boleto/pix)
+    return `
+      <div class="field"><label>Valor da comissão</label><input type="number" id="f_value" step="0.01" min="0" placeholder="0,00"></div>
+      <div class="field"><label>Previsão de pagamento (opcional)</label><input type="date" id="f_expected"></div>`;
+  }
+
   function openCommissionForm(prefill){
     prefill = prefill || {};
+    let paymentType = 'avista_boleto_pix';
     openOverlay(`
-      <h3>Nova comissão</h3>
-      <div class="field"><label>Cliente / venda</label><input type="text" id="f_client" value="${escapeHtml(prefill.client||'')}" placeholder="Ex: Cliente Silva - Pedido 1234"></div>
-      <div class="field-row">
-        <div class="field"><label>Valor</label><input type="number" id="f_value" step="0.01" min="0" placeholder="0,00"></div>
-        <div class="field"><label>Data da venda</label><input type="date" id="f_date" value="${prefill.date||todayIso()}"></div>
+      <h3>Nova venda</h3>
+      <div class="field"><label>Forma de pagamento</label>
+        <div class="choice-grid" id="paymentChoices">
+          ${PAYMENT_TYPES.map(p=>`<button type="button" class="choice-btn" data-type="${p.id}">${p.label}</button>`).join('')}
+        </div>
       </div>
-      <div class="field"><label>Previsão de pagamento (opcional)</label><input type="date" id="f_expected"></div>
+      <div class="field"><label>Cliente / venda</label><input type="text" id="f_client" value="${escapeHtml(prefill.client||'')}" placeholder="Ex: Cliente Silva - Pedido 1234"></div>
+      <div class="field"><label>Data da venda</label><input type="date" id="f_date" value="${prefill.date||todayIso()}"></div>
+      <div id="dynamicFields">${dynamicPaymentFields(paymentType)}</div>
       <div class="sheet-actions"><button class="btn-cancel" id="cancelBtn">Cancelar</button><button class="btn-save" id="saveBtn">Salvar</button></div>
     `);
-    document.getElementById('cancelBtn').addEventListener('click', ()=>{
-      // se veio de um fluxo de conclusão de compromisso, apenas fecha (compromisso já tratado antes)
-      closeOverlay();
-    });
+    const typeButtons = document.querySelectorAll('#paymentChoices .choice-btn');
+    function selectType(t){
+      paymentType = t;
+      typeButtons.forEach(b=>b.classList.toggle('selected', b.dataset.type===t));
+      document.getElementById('dynamicFields').innerHTML = dynamicPaymentFields(t);
+    }
+    typeButtons.forEach(b=>b.addEventListener('click', ()=>selectType(b.dataset.type)));
+    selectType(paymentType);
+
+    document.getElementById('cancelBtn').addEventListener('click', closeOverlay);
     document.getElementById('saveBtn').addEventListener('click', async ()=>{
       const client = document.getElementById('f_client').value.trim();
-      const value = parseFloat(document.getElementById('f_value').value);
       const date = document.getElementById('f_date').value;
-      const expected = document.getElementById('f_expected').value;
-      if(!client || !value || !date) return;
+      if(!client || !date) return;
+
+      const saleGroupId = uid();
+      let installments = [];
+
+      if(paymentType==='parcelado_boleto'){
+        const perValue = parseFloat(document.getElementById('f_installmentValue').value);
+        const count = parseInt(document.getElementById('f_installmentCount').value, 10);
+        if(!perValue || !count || count<1) return;
+        for(let i=1;i<=count;i++){
+          installments.push({ client, date, value:perValue, expectedDate:addMonths(date,i),
+            paymentType, installmentLabel:`Parcela ${i}/${count}`, installmentIndex:i, totalInstallments:count, saleGroupId });
+        }
+      } else if(paymentType==='entrada_saldo'){
+        const entradaValue = parseFloat(document.getElementById('f_entradaValue').value);
+        const perValue = parseFloat(document.getElementById('f_installmentValue').value);
+        const count = parseInt(document.getElementById('f_installmentCount').value, 10);
+        if(!entradaValue || !perValue || !count || count<1) return;
+        const total = count+1;
+        installments.push({ client, date, value:entradaValue, expectedDate:date,
+          paymentType, installmentLabel:'Entrada', installmentIndex:0, totalInstallments:total, saleGroupId });
+        for(let i=1;i<=count;i++){
+          installments.push({ client, date, value:perValue, expectedDate:addMonths(date,i),
+            paymentType, installmentLabel:`Parcela ${i}/${count}`, installmentIndex:i, totalInstallments:total, saleGroupId });
+        }
+      } else {
+        const value = parseFloat(document.getElementById('f_value').value);
+        const expected = document.getElementById('f_expected').value;
+        if(!value) return;
+        installments.push({ client, date, value, expectedDate:expected||null,
+          paymentType, installmentLabel:null, installmentIndex:1, totalInstallments:1, saleGroupId });
+      }
+
       const saveBtn = document.getElementById('saveBtn'); saveBtn.disabled = true; saveBtn.textContent = 'Salvando…';
-      const newCommission = await insertCommission({ client, value, date, expectedDate: expected||null, status:'pendente', receivedDate:null });
-      if(!newCommission){ saveBtn.disabled=false; saveBtn.textContent='Salvar'; return; }
+      const inserted = await insertSaleCommissions(installments);
+      if(!inserted){ saveBtn.disabled=false; saveBtn.textContent='Salvar'; return; }
 
       if(prefill.linkCompromissoId){
-        await updateCompromisso(prefill.linkCompromissoId, { status:'concluido', outcome:'convertido', linkedCommissionId:newCommission.id });
+        await updateCompromisso(prefill.linkCompromissoId, { status:'concluido', outcome:'convertido', linkedCommissionId:inserted[0].id });
       }
       closeOverlay();
       state.tab = 'comissoes';
@@ -1278,21 +1434,17 @@
   }
 
   function openGoalForm(){
-    const g = state.goals[state.month] || {};
+    const currentGoal = state.goals[state.month] || '';
     openOverlay(`
       <h3>Meta de ${monthLabel(state.month)}</h3>
-      <p class="sheet-sub">Defina os três níveis. A barra muda de cor conforme você avança entre eles.</p>
-      <div class="field"><label>Meta mínima</label><input type="number" id="f_minima" step="0.01" min="0" value="${g.minima||''}" placeholder="0,00"></div>
-      <div class="field"><label>Meta ideal</label><input type="number" id="f_ideal" step="0.01" min="0" value="${g.ideal||''}" placeholder="0,00"></div>
-      <div class="field"><label>Meta superada</label><input type="number" id="f_superada" step="0.01" min="0" value="${g.superada||''}" placeholder="0,00"></div>
+      <p class="sheet-sub">Quanto em comissões você quer vender esse mês.</p>
+      <div class="field"><label>Meta do mês</label><input type="number" id="f_goal" step="0.01" min="0" value="${currentGoal||''}" placeholder="0,00"></div>
       <div class="sheet-actions"><button class="btn-cancel" id="cancelBtn">Cancelar</button><button class="btn-save" id="saveBtn">Salvar</button></div>
     `);
     document.getElementById('cancelBtn').addEventListener('click', closeOverlay);
     document.getElementById('saveBtn').addEventListener('click', async ()=>{
-      const minima = parseFloat(document.getElementById('f_minima').value) || 0;
-      const ideal = parseFloat(document.getElementById('f_ideal').value) || 0;
-      const superada = parseFloat(document.getElementById('f_superada').value) || 0;
-      await saveGoalMonth(state.month, { minima, ideal, superada });
+      const value = parseFloat(document.getElementById('f_goal').value) || 0;
+      await saveGoalMonth(state.month, value);
       closeOverlay(); render();
     });
   }
